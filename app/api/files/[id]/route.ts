@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readFile } from 'fs/promises';
-import path from 'path';
 import { apiErr, apiSession } from '@/lib/api';
-import { getFile, getProject, uploadsDir } from '@/lib/store';
+import { getFile, getProject, readUpload } from '@/lib/store';
 
 /**
  * Authorized file download. Session required; clients may only
@@ -22,11 +20,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return apiErr('File not found.', 404);
   }
 
-  // Key is server-generated (no user input in the path); still resolve defensively.
-  const resolved = path.resolve(uploadsDir, path.basename(file.key));
-  if (!resolved.startsWith(path.resolve(uploadsDir))) return apiErr('Invalid file path.', 400);
-
-  const buffer = await readFile(resolved);
+  // Key is server-generated; readUpload re-validates and serves from disk or memory.
+  const buffer = await readUpload(file.key);
+  if (!buffer) return apiErr('File not found.', 404);
   return new NextResponse(Buffer.from(buffer), {
     headers: {
       'Content-Type': file.mime || 'application/octet-stream',

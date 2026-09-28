@@ -112,12 +112,26 @@ All outgoing mail routes through `sendMail()`. With `RESEND_API_KEY` set it deli
 
 ## Deployment
 
+### Local / VM
+
 ```bash
 npm run build
 npm start          # binds 0.0.0.0:3000
 ```
 
-Runs anywhere Node 18.18+ runs. Set `BASE_URL`, real admin credentials and `RESEND_API_KEY` in the environment. Persist the `data/` directory (or point the store at Postgres).
+Runs anywhere Node 18.18+ runs. Persist the `data/` directory.
+
+### Vercel (recommended)
+
+1. Push this repo to GitHub and choose **Add New → Project** in Vercel, importing the repo. The Next.js framework preset is detected automatically — keep the default build command (`next build`) and output.
+2. Set environment variables in **Project → Settings → Environment Variables**:
+   - `BASE_URL` = your production URL, e.g. `https://your-company.vercel.app`
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `PORTAL_EMAIL`, `PORTAL_PASSWORD` (change from the dev defaults!)
+   - `RESEND_API_KEY` / `RESEND_FROM` (optional — real email delivery)
+3. Deploy. That's it — no `vercel.json` needed.
+
+**Storage on Vercel (demo mode).** Vercel's filesystem is read-only, and this app detects that automatically: the database and uploads run **in memory** and re-seed with example data on cold starts. Perfect for a showcase deployment. `/admin/settings` shows the active storage mode. When you're ready for durable data, connect Supabase/Postgres (see `db/schema.sql`) or Vercel KV — the store layer in `lib/store.ts` is the single place to swap.
+
 
 ## Project structure
 

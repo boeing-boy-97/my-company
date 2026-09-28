@@ -1,8 +1,6 @@
 import { apiOk, apiErr, apiSession, clientIp } from '@/lib/api';
 import { rateLimit } from '@/lib/rate-limit';
-import { getProject, listFiles, addFile, ensureUploadDir, uploadsDir } from '@/lib/store';
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import { getProject, listFiles, addFile, writeUpload } from '@/lib/store';
 import crypto from 'crypto';
 
 const UPLOAD_MIMES: Record<string, string> = {
@@ -58,10 +56,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!ext) return apiErr('File type not allowed.', 422);
   if (file.size > MAX_UPLOAD) return apiErr('File exceeds the 10 MB limit.', 413);
 
-  await ensureUploadDir();
   const safeBase = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 80).trim().replace(/\s+/g, '-') || 'file';
   const key = `${auth.project.id}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
-  await writeFile(path.join(uploadsDir, key), Buffer.from(await file.arrayBuffer()));
+  await writeUpload(key, Buffer.from(await file.arrayBuffer()));
 
   const record = await addFile({
     projectId: auth.project.id, name: safeBase, key, mime: file.type, size: file.size,

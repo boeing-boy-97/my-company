@@ -31,7 +31,7 @@ export default async function AdminShell({ email, pathname, children }: { email:
             <p className="font-display text-[16px] font-semibold leading-tight">Back Office</p>
             <p className="font-mono text-[9.5px] uppercase tracking-tech text-paper/40">{email}</p>
           </div>
-          <nav aria-label="Admin" className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto lg:order-2 lg:w-auto">
+          <nav aria-label="Admin" className="order-3 -mx-1 flex w-full gap-1 overflow-x-auto pb-1 lg:order-2 lg:w-auto lg:pb-0">
             {NAV.map((item) => (
               <Link
                 key={item.href}
@@ -63,7 +63,7 @@ export default async function AdminShell({ email, pathname, children }: { email:
                 </svg>
                 {unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 font-mono text-[9px] text-white">{unread}</span>}
               </button>
-              <div className="pointer-events-none absolute right-0 top-full z-50 w-[340px] pt-2 opacity-0 transition-all duration-200 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
+              <div className="pointer-events-none absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] pt-2 opacity-0 transition-all duration-200 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
                 <div className="max-h-[380px] overflow-y-auto rounded-xl border border-line bg-surface p-2 text-ink shadow-[0_24px_60px_-20px_rgba(23,25,30,0.3)]">
                   {notifications.length === 0 ? (
                     <p className="px-3 py-4 text-[12.5px] text-faint">No notifications yet.</p>

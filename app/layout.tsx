@@ -15,6 +15,7 @@ const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', displ
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
+  themeColor: '#F7F5F1',
   title: {
     default: `${site.name} — Technology for ambitious businesses`,
     template: `%s — ${site.name}`,

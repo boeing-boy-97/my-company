@@ -8,7 +8,7 @@
 // posts, testimonials, team, jobs), notifications, sessions,
 // outbox, settings, resetTokens.
 // ============================================================
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile, mkdir, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -225,9 +225,64 @@ function seed(): DB {
 let cache: DB | null = null;
 const DB_PATH = () => path.join(DATA_DIR, 'db.json');
 
+// Serverless platforms (Vercel) expose a read-only filesystem. Detect it once
+// and fall back to memory-only persistence so the site still runs (demo mode).
+let fsMode: 'disk' | 'readonly' | null = null;
+
+async function detectFs(): Promise<'disk' | 'readonly'> {
+  if (fsMode) return fsMode;
+  try {
+    if (!existsSync(DATA_DIR)) await mkdir(DATA_DIR, { recursive: true });
+    if (!existsSync(uploadsDir)) await mkdir(uploadsDir, { recursive: true });
+    const probe = path.join(DATA_DIR, '.probe');
+    await writeFile(probe, 'ok');
+    fsMode = 'disk';
+  } catch {
+    fsMode = 'readonly';
+  }
+  return fsMode;
+}
+
 async function ensureDirs() {
-  if (!existsSync(DATA_DIR)) await mkdir(DATA_DIR, { recursive: true });
-  if (!existsSync(uploadsDir)) await mkdir(uploadsDir, { recursive: true });
+  await detectFs();
+}
+
+/** Current persistence mode — surfaced in /admin/settings. */
+export async function storageMode(): Promise<'disk' | 'readonly'> {
+  return detectFs();
+}
+
+/** In-memory upload fallback for read-only environments. */
+const memoryUploads = new Map<string, Buffer>();
+
+export async function writeUpload(key: string, buffer: Buffer): Promise<void> {
+  const mode = await detectFs();
+  if (mode === 'disk') await writeFile(path.join(uploadsDir, key), buffer);
+  else memoryUploads.set(key, buffer);
+}
+
+export async function readUpload(key: string): Promise<Buffer | null> {
+  const mode = await detectFs();
+  if (memoryUploads.has(key)) return memoryUploads.get(key)!;
+  if (mode !== 'disk') return null;
+  const resolved = path.resolve(uploadsDir, path.basename(key));
+  if (!resolved.startsWith(path.resolve(uploadsDir))) return null;
+  try {
+    return await readFile(resolved);
+  } catch {
+    return null;
+  }
+}
+
+export async function removeUpload(key: string): Promise<void> {
+  memoryUploads.delete(key);
+  const mode = await detectFs();
+  if (mode !== 'disk') return;
+  try {
+    await unlink(path.join(uploadsDir, key));
+  } catch {
+    /* already gone */
+  }
 }
 
 /** Migrate v1 databases (pre-CMS) to the current shape. */
@@ -281,7 +336,8 @@ async function load(): Promise<DB> {
 
 async function persist() {
   if (!cache) return;
-  await ensureDirs();
+  const mode = await detectFs();
+  if (mode !== 'disk') return; // memory-only on read-only platforms
   await writeFile(DB_PATH(), JSON.stringify(cache, null, 2), 'utf8');
 }
 

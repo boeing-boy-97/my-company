@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth';
-import { getSettings } from '@/lib/store';
+import { getSettings, storageMode } from '@/lib/store';
 import { site } from '@/lib/site';
 import AdminShell from '@/components/admin/AdminShell';
 import SettingsForm from '@/components/admin/SettingsForm';
@@ -14,7 +14,7 @@ export default async function AdminSettingsPage() {
   const session = await getCurrentSession();
   if (!session || session.role !== 'admin') redirect('/admin/login');
 
-  const s = await getSettings();
+  const [s, mode] = await Promise.all([getSettings(), storageMode()]);
   const initial = {
     contactEmail: s.contactEmail ?? site.contact.email,
     phone: s.phone ?? site.contact.phone,
@@ -35,10 +35,10 @@ export default async function AdminSettingsPage() {
         </div>
 
         <div className="mt-8 rounded-2xl border border-dashed border-line p-6">
-          <p className="font-mono text-[10px] uppercase tracking-tech text-faint">Where these values appear</p>
+          <p className="font-mono text-[10px] uppercase tracking-tech text-faint">Environment</p>
           <ul className="mt-3 space-y-1.5 text-[13px] text-soft">
-            <li>· Footer — email, phone, WhatsApp, hours</li>
-            <li>· Contact page — same values, plus the contact form</li>
+            <li>· Storage: {mode === 'disk' ? 'local disk (data/)' : 'memory — this platform has a read-only filesystem; connect a database for durable data'}</li>
+            <li>· Footer, contact page and emails read these settings</li>
             <li>· JSON-LD organization schema uses the defaults in code</li>
           </ul>
         </div>

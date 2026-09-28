@@ -5,8 +5,6 @@
 // → persists → notifies. Errors returned are safe to display.
 // ============================================================
 import { headers } from 'next/headers';
-import { writeFile, unlink } from 'fs/promises';
-import path from 'path';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
 import { rateLimit } from './rate-limit';
@@ -15,10 +13,10 @@ import { makeRef } from './utils';
 import { track } from './analytics';
 import {
   createLead, createContact, createApplication, updateLead, listLeads, sendMail,
-  ensureUploadDir, uploadsDir, addProjectMessage, getUserByEmail, createResetToken,
+  ensureUploadDir, addProjectMessage, getUserByEmail, createResetToken,
   consumeResetToken, updateUserPassword, hashPassword, listClients, createClient,
   updateClient, createProject, updateProject, upsertMilestone, listProjects, getProject,
-  addFile, deleteFile, getFile, cmsList, cmsGet, cmsSave, cmsDelete, notify,
+  addFile, deleteFile, getFile, cmsList, cmsGet, cmsSave, cmsDelete, notify, writeUpload, removeUpload,
   saveSettings, getProjectMessages, markProjectMessagesRead, listFiles,
   type LeadStatus, type Role, type MilestoneStatus, type CmsStatus, type CmsRecord,
 } from './store';
@@ -393,10 +391,9 @@ export async function uploadProjectFile(formData: FormData): Promise<ActionResul
   if (!ext) return { ok: false, error: 'File type not allowed. Use PDF, DOC(X), XLS(X), CSV, TXT, PNG, JPG, WEBP or ZIP.' };
   if (file.size > MAX_UPLOAD) return { ok: false, error: 'File must be under 10 MB.' };
 
-  await ensureUploadDir();
   const safeBase = file.name.replace(/[^\w.\- ]+/g, '').slice(0, 80).trim().replace(/\s+/g, '-') || 'file';
   const key = `${projectId}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
-  await writeFile(path.join(uploadsDir, key), Buffer.from(await file.arrayBuffer()));
+  await writeUpload(key, Buffer.from(await file.arrayBuffer()));
 
   await addFile({ projectId, name: safeBase, key, mime: file.type, size: file.size, uploadedBy: session.role === 'admin' ? 'studio' : 'client' });
   return { ok: true };
@@ -406,11 +403,7 @@ export async function deleteProjectFileAction(fileId: string): Promise<ActionRes
   if (!(await requireAdmin())) return UNAUTHORIZED;
   const file = await getFile(fileId);
   if (!file) return { ok: false, error: 'File not found' };
-  try {
-    await unlink(path.join(uploadsDir, file.key));
-  } catch {
-    /* file may already be gone — metadata deletion still proceeds */
-  }
+  await removeUpload(file.key);
   await deleteFile(fileId);
   return { ok: true };
 }
@@ -435,10 +428,9 @@ export async function submitApplication(formData: FormData): Promise<ActionResul
     if (!allowed.includes(file.type)) errors.resume = 'Resume must be PDF or DOC/DOCX';
     else if (file.size > 5 * 1024 * 1024) errors.resume = 'Resume must be under 5 MB';
     else {
-      await ensureUploadDir();
       const ext = file.type === 'application/pdf' ? '.pdf' : '.docx';
       const key = `resume-${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
-      await writeFile(path.join(uploadsDir, key), Buffer.from(await file.arrayBuffer()));
+      await writeUpload(key, Buffer.from(await file.arrayBuffer()));
       resumeKey = key;
     }
   }

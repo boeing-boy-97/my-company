@@ -1,9 +1,7 @@
 import { apiOk, apiErr, clientIp } from '@/lib/api';
 import { rateLimit } from '@/lib/rate-limit';
-import { createApplication, ensureUploadDir, uploadsDir, sendMail } from '@/lib/store';
+import { createApplication, writeUpload, sendMail } from '@/lib/store';
 import { sanitize } from '@/lib/validate';
-import { writeFile } from 'fs/promises';
-import path from 'path';
 import crypto from 'crypto';
 
 export async function POST(request: Request) {
@@ -28,10 +26,9 @@ export async function POST(request: Request) {
     const allowed = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!allowed.includes(file.type)) return apiErr('resume: must be PDF or DOC/DOCX', 422);
     if (file.size > 5 * 1024 * 1024) return apiErr('resume: must be under 5 MB', 413);
-    await ensureUploadDir();
     const ext = file.type === 'application/pdf' ? '.pdf' : '.docx';
     const key = `resume-${Date.now()}-${crypto.randomBytes(4).toString('hex')}${ext}`;
-    await writeFile(path.join(uploadsDir, key), Buffer.from(await file.arrayBuffer()));
+    await writeUpload(key, Buffer.from(await file.arrayBuffer()));
     resumeKey = key;
   }
 
