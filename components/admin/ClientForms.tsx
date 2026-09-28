@@ -1,7 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientAction, updateClientAction } from '@/lib/actions';
+import { createClientAction, updateClientAction , inviteClientAction } from '@/lib/actions';
 import type { Client } from '@/lib/store';
 
 export function ClientForm({ client, defaultCompany }: { client?: Client; defaultCompany?: string }) {
@@ -92,5 +92,49 @@ export function ArchiveClientButton({ clientId }: { clientId: string }) {
     >
       Archive client
     </button>
+  );
+}
+
+
+export function InviteClientButton({ clientId, email }: { clientId: string; email?: string }) {
+  const [state, setState] = useState<{ link?: string; error?: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const invite = () => {
+    setState(null);
+    startTransition(async () => {
+      const res = await inviteClientAction(clientId);
+      if (res.ok && res.token) {
+        const base = typeof window !== 'undefined' ? window.location.origin : '';
+        setState({ link: `${base}/portal/reset?token=${String(res.token)}` });
+      } else {
+        setState({ error: (res.ok ? undefined : res.error) || 'Could not create invite' });
+      }
+    });
+  };
+
+  return (
+    <div className="rounded-2xl border border-line bg-surface p-7">
+      <p className="label-tech">Portal access</p>
+      <p className="mt-2 text-[13px] leading-relaxed text-soft">
+        {email
+          ? 'Creates the portal user (if needed) and emails a one-time setup link so the client can choose their own password.'
+          : 'Add an email to this client record first — the setup link is sent there.'}
+      </p>
+      <button
+        onClick={invite}
+        disabled={isPending || !email}
+        className="mt-4 rounded-full bg-ink px-5 py-2.5 text-[12.5px] font-medium text-paper transition-colors hover:bg-coal disabled:opacity-50"
+      >
+        {isPending ? 'Preparing invite…' : 'Send portal invite'}
+      </button>
+      {state?.error && <p role="alert" className="mt-3 text-[12.5px] text-red-600">{state.error}</p>}
+      {state?.link && (
+        <div className="mt-4 rounded-xl border border-ok/30 bg-ok/5 p-4">
+          <p className="text-[12.5px] font-medium text-ink">Invite sent by email. Backup setup link:</p>
+          <p className="mt-1.5 break-all font-mono text-[11.5px] text-soft">{state.link}</p>
+        </div>
+      )}
+    </div>
   );
 }

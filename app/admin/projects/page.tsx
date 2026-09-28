@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth';
-import { listProjects, listClients, getClient } from '@/lib/store';
+import { listProjects, listClients, getClient, friendlyProjectStatus, PROJECT_STATUSES } from '@/lib/store';
 import AdminShell from '@/components/admin/AdminShell';
 import { CreateProjectForm } from '@/components/admin/ProjectForms';
+import ProjectsTable from '@/components/admin/ProjectsTable';
 import { EmptyState } from '@/components/ui/primitives';
-import { formatDate } from '@/lib/utils';
 import { pageSeo } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +34,19 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
     );
   }
 
-  const rows = await Promise.all(projects.map(async (p) => ({ ...p, client: await clientName(p.clientId) })));
+  const rows = await Promise.all(projects.map(async (p) => ({
+    id: p.id,
+    name: p.name,
+    client: await clientName(p.clientId),
+    status: p.status,
+    friendlyStatus: friendlyProjectStatus(p.status),
+    progress: p.progress,
+    milestonesDone: p.milestones.filter((m) => m.status === 'complete').length,
+    milestonesTotal: p.milestones.length,
+    nextMilestone: p.nextMilestone,
+    createdAt: p.createdAt,
+  })));
+  const statuses = PROJECT_STATUSES.map((s) => ({ value: s, label: friendlyProjectStatus(s) }));
 
   return (
     <AdminShell email={session.email} pathname="/admin/projects">
@@ -51,42 +63,7 @@ export default async function AdminProjectsPage({ searchParams }: { searchParams
           <EmptyState title="No projects yet" body="Create a project for a client — seven standard milestones are scaffolded automatically." />
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-surface">
-          <table className="w-full min-w-[820px] text-left">
-            <thead>
-              <tr className="border-b border-line">
-                {['Project', 'Client', 'Status', 'Progress', 'Milestones', 'Next', 'Started'].map((h) => (
-                  <th key={h} className="px-5 py-3.5 font-mono text-[10px] uppercase tracking-tech text-faint">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((p) => {
-                const done = p.milestones.filter((m) => m.status === 'complete').length;
-                return (
-                  <tr key={p.id} className="border-b border-line last:border-0 hover:bg-paper">
-                    <td className="px-5 py-4">
-                      <Link href={`/admin/projects/${p.id}`} className="link-underline text-[13.5px] font-medium text-ink">{p.name}</Link>
-                    </td>
-                    <td className="px-5 py-4 text-[13px] text-soft">{p.client}</td>
-                    <td className="px-5 py-4"><span className="rounded-full border border-line px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-wide text-soft">{p.status}</span></td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-[4px] w-20 overflow-hidden rounded-full bg-line">
-                          <div className="h-full rounded-full bg-accent" style={{ width: `${p.progress}%` }} />
-                        </div>
-                        <span className="font-mono text-[10.5px] text-faint">{p.progress}%</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 font-mono text-[11.5px] text-soft">{done}/{p.milestones.length}</td>
-                    <td className="max-w-[180px] truncate px-5 py-4 text-[12.5px] text-soft">{p.nextMilestone}</td>
-                    <td className="px-5 py-4 font-mono text-[10.5px] text-faint">{formatDate(p.createdAt)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <ProjectsTable rows={rows} statuses={statuses} />
       )}
     </AdminShell>
   );

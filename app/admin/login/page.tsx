@@ -11,6 +11,7 @@ export const metadata: Metadata = { ...pageSeo({ title: 'Admin Login', descripti
 export default async function AdminLoginPage() {
   const session = await getCurrentSession();
   if (session?.role === 'admin') redirect('/admin');
+  const showHint = process.env.NEXT_PUBLIC_SHOW_DEMO_HINT === '1';
   const creds = credentialsFor('admin');
 
   return (
@@ -20,7 +21,7 @@ export default async function AdminLoginPage() {
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
-        <LoginForm role="admin" title="Back Office" subtitle="Leads, projects and content administration." demoEmail={creds.email} demoPassword={creds.password} />
+        <LoginForm role="admin" title="Back Office" subtitle="Leads, projects and content administration." demoEmail={showHint ? creds.email : ''} demoPassword={showHint ? creds.password : ''} />
       </div>
     </main>
   );

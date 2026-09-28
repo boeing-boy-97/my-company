@@ -26,6 +26,8 @@ export interface CaseStudy {
   solution: string;
   outcome: string;
   featured: boolean;
+  /** Honest classification of what is actually shown. */
+  nature: 'representative' | 'concept' | 'internal';
   visual: 'workflow' | 'agent' | 'dashboard' | 'mobile' | 'documents' | 'platform';
   metrics: Array<{ value: string; label: string }>;
   sections: CaseSection[];
@@ -34,6 +36,7 @@ export interface CaseStudy {
 export const caseStudies: CaseStudy[] = [
   {
     slug: 'ai-operations-assistant',
+    nature: 'representative',
     title: 'AI Operations Assistant',
     client: 'Confidential — Logistics group',
     industry: 'Logistics',
@@ -90,6 +93,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'business-automation-platform',
+    nature: 'representative',
     title: 'Business Automation Platform',
     client: 'Confidential — Real-estate services',
     industry: 'Real Estate',
@@ -139,6 +143,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'business-intelligence-dashboard',
+    nature: 'concept',
     title: 'Business Intelligence Dashboard',
     client: 'Confidential — Retail group',
     industry: 'Retail',
@@ -186,6 +191,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'customer-support-agent',
+    nature: 'representative',
     title: 'Customer Support Automation',
     client: 'Confidential — E-commerce brand',
     industry: 'E-commerce',
@@ -228,6 +234,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'document-intelligence-system',
+    nature: 'concept',
     title: 'Document Intelligence System',
     client: 'Confidential — Financial services',
     industry: 'Finance',
@@ -271,6 +278,7 @@ export const caseStudies: CaseStudy[] = [
   },
   {
     slug: 'saas-management-platform',
+    nature: 'internal',
     title: 'SaaS Management Platform',
     client: 'Confidential — Startup founder',
     industry: 'B2B SaaS',
@@ -317,3 +325,9 @@ export const caseStudies: CaseStudy[] = [
 
 export const caseBySlug = (slug: string) => caseStudies.find((c) => c.slug === slug);
 export const workFilters = ['All', 'AI', 'Automation', 'SaaS', 'Web', 'Mobile', 'Enterprise', 'Other'];
+
+export const NATURE_LABELS: Record<CaseStudy['nature'], string> = {
+  representative: 'Representative build',
+  concept: 'Concept build',
+  internal: 'Internal project',
+};

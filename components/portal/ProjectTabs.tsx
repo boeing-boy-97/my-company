@@ -1,12 +1,13 @@
 'use client';
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { sendPortalMessage, uploadProjectFile } from '@/lib/actions';
+import { sendPortalMessage, uploadProjectFile, approveProjectAction } from '@/lib/actions';
+import { friendlyProjectStatus } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/primitives';
 import { formatDate } from '@/lib/utils';
 import type { Project, PortalMessage, PortalFile } from '@/lib/store';
 
-const TABS = ['Overview', 'Milestones', 'Messages', 'Files', 'Invoices'] as const;
+const TABS = ['Overview', 'Updates', 'Milestones', 'Messages', 'Files', 'Invoices'] as const;
 type Tab = (typeof TABS)[number];
 
 const MILESTONE_LABEL: Record<string, string> = {
@@ -29,6 +30,21 @@ export default function ProjectTabs({ project, messages, files }: { project: Pro
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [approvalComment, setApprovalComment] = useState('');
+  const [approvalError, setApprovalError] = useState('');
+
+  const approve = (label: string) => {
+    setApprovalError('');
+    startTransition(async () => {
+      const res = await approveProjectAction(project.id, label, approvalComment);
+      if (res.ok) {
+        setApprovalComment('');
+        router.refresh();
+      } else {
+        setApprovalError(res.error || 'Could not record approval');
+      }
+    });
+  };
 
   const send = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +88,26 @@ export default function ProjectTabs({ project, messages, files }: { project: Pro
           </button>
         ))}
       </div>
+
+      {project.actionRequired && (
+        <div role="status" className="mt-6 rounded-2xl border border-accent/40 bg-accent/10 p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-tech text-accentdeep">Action required</p>
+              <p className="mt-2 text-[15px] font-medium leading-relaxed text-ink">{project.actionRequired.text}</p>
+              <p className="mt-1.5 font-mono text-[10px] uppercase tracking-tech text-faint">Flagged {formatDate(project.actionRequired.at)}</p>
+            </div>
+            <button
+              onClick={() => approve(project.actionRequired!.text)}
+              disabled={isPending}
+              className="rounded-full bg-ink px-5 py-2.5 text-[13px] font-medium text-paper transition-colors hover:bg-coal disabled:opacity-60"
+            >
+              {isPending ? 'Recording…' : 'Approve / confirm'}
+            </button>
+          </div>
+          {approvalError && <p role="alert" className="mt-3 text-[12.5px] text-[#a53223]">{approvalError}</p>}
+        </div>
+      )}
 
       <div className="pt-8">
         {tab === 'Overview' && (
@@ -129,6 +165,64 @@ export default function ProjectTabs({ project, messages, files }: { project: Pro
                 ) : (
                   <p className="mt-3 text-[13px] text-faint">No active tasks right now.</p>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'Updates' && (
+          <div className="space-y-6">
+            {project.updates.length === 0 ? (
+              <EmptyState title="No updates published yet" body="The studio publishes progress updates here as work moves forward." />
+            ) : (
+              <ol className="space-y-4">
+                {project.updates.map((u) => (
+                  <li key={u.id} className="rounded-2xl border border-line bg-surface p-6">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <h3 className="font-display text-[16px] font-semibold text-ink">{u.title}</h3>
+                      <p className="font-mono text-[10px] uppercase tracking-tech text-faint">{formatDate(u.at)}</p>
+                    </div>
+                    <p className="mt-2.5 text-[14px] leading-relaxed text-soft">{u.note}</p>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {/* approvals */}
+            <div className="rounded-2xl border border-line bg-surface p-6">
+              <p className="label-tech">Your approvals</p>
+              {project.approvals.length === 0 ? (
+                <p className="mt-3 text-[13px] text-faint">Nothing approved yet. When you confirm something here, it is recorded with your name and timestamp.</p>
+              ) : (
+                <ul className="mt-3 divide-y divide-linedark">
+                  {project.approvals.map((a) => (
+                    <li key={a.id} className="py-3">
+                      <p className="text-[13.5px] font-medium text-ink">{a.label}</p>
+                      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wide text-faint">
+                        {a.approvedBy} · {formatDate(a.approvedAt)}{a.comment ? ` · “${a.comment}”` : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="mt-5 border-t border-linedark pt-5">
+                <label htmlFor="approval-label" className="text-[12.5px] font-medium text-ink">Record a different approval</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <input
+                    id="approval-label"
+                    value={approvalComment}
+                    onChange={(e) => setApprovalComment(e.target.value)}
+                    placeholder="e.g. Approved homepage design v2"
+                    className="min-w-0 flex-1 rounded-full border border-line bg-paper px-4 py-2.5 text-[13px] text-ink placeholder:text-faint focus:border-accent focus:outline-none"
+                  />
+                  <button
+                    onClick={() => approve(approvalComment)}
+                    disabled={isPending || !approvalComment.trim()}
+                    className="rounded-full bg-ink px-5 py-2.5 text-[13px] font-medium text-paper transition-colors hover:bg-coal disabled:opacity-50"
+                  >
+                    Record approval
+                  </button>
+                </div>
               </div>
             </div>
           </div>

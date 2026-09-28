@@ -37,13 +37,17 @@ function jar() {
 
 const json = (res) => res.json();
 
+// Per-run uniqueness so the suite can be re-run against persisted demo data.
+const RUN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
 // ---------- 1. route sweep ----------
 test('public routes return 200', async () => {
   const routes = [
     '/', '/services', '/services/ai-automation', '/services/ai-agents', '/services/software',
     '/services/web-mobile', '/services/ai-products', '/services/integration',
     '/work', '/process', '/industries', '/about', '/insights',
-    '/start-project', '/contact', '/careers', '/privacy', '/terms', '/accessibility',
+    '/start-project', '/contact', '/careers', '/privacy', '/cookies', '/terms', '/accessibility',
+    '/services/system-integration',
     '/portal/login', '/admin/login', '/portal/forgot', '/api/health',
   ];
   for (const route of routes) {
@@ -110,7 +114,7 @@ test('visitor can submit a project brief (API)', async () => {
       currency: 'USD',
       companyName: 'Test Co',
       contactName: 'Test Person',
-      email: 'test@example.com',
+      email: `test-${RUN}@example.com`,
       sourceUrl: 'http://localhost:3000/start-project?utm_source=qa',
       utm: { source: 'qa', medium: 'e2e', campaign: 'suite' },
     }),
@@ -118,7 +122,7 @@ test('visitor can submit a project brief (API)', async () => {
   assert.equal(res.status, 201);
   const body = await json(res);
   assert.equal(body.ok, true);
-  assert.match(body.data.reference, /^PB-/);
+  assert.match(body.data.reference, /^KD-\d{4}-[0-9A-Z]{5}$/);
   leadRef = body.data.reference;
   leadId = body.data.id;
 });
@@ -346,4 +350,92 @@ test('all API responses use the { ok } envelope', async () => {
     const body = await json(await fetch(BASE + path));
     assert.ok(typeof body.ok === 'boolean', `${path} envelope has ok:boolean`);
   }
+});
+
+// ---------- 2026 A–EZ spec additions ----------
+
+test('login pages never expose demo credentials', async () => {
+  for (const route of ['/admin/login', '/portal/login']) {
+    const html = await (await fetch(BASE + route)).text();
+    assert.ok(!html.includes('admin2026'), `${route} must not show admin password`);
+    assert.ok(!html.includes('demo2026'), `${route} must not show portal password`);
+    assert.ok(!html.toLowerCase().includes('development demo credentials'), `${route} must not show demo hint`);
+  }
+});
+
+test('homepage clocks never render placeholder dashes', async () => {
+  const html = await (await fetch(BASE + '/')).text();
+  assert.ok(!html.includes('--:--:--'), 'no placeholder clock values in SSR HTML');
+});
+
+test('cookies policy page explains the single essential cookie', async () => {
+  const html = await (await fetch(BASE + '/cookies')).text();
+  assert.ok(html.includes('session cookie'), 'cookies page mentions the session cookie');
+});
+
+test('case studies carry honest nature labels', async () => {
+  const html = await (await fetch(BASE + '/work/ai-operations-assistant')).text();
+  assert.ok(html.includes('Representative build'), 'representative badge rendered');
+  const concept = await (await fetch(BASE + '/work/business-intelligence-dashboard')).text();
+  assert.ok(concept.includes('Concept build'), 'concept badge rendered');
+});
+
+test('system-integration alias serves the integration service page', async () => {
+  const alias = await (await fetch(BASE + '/services/system-integration')).text();
+  const canonical = await (await fetch(BASE + '/services/integration')).text();
+  assert.ok(alias.includes('Systems & Integrations') || alias.includes('Integrations'), 'alias renders service content');
+});
+
+test('duplicate brief within 10 minutes returns the SAME reference', async () => {
+  const payload = {
+    projectTypes: ['Automate a business process'],
+    objective: `Duplicate-detection check ${RUN}: same email and objective submitted twice in a row.`,
+    timeline: '1–3 months',
+    budgetRange: '5,000–10,000',
+    currency: 'USD',
+    companyName: 'Dup Co',
+    contactName: 'Dup Person',
+    email: `dup-${RUN}@example.com`,
+  };
+  const post = () => fetch(BASE + '/api/project-brief', {
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload),
+  });
+  const first = await json(await post());
+  assert.equal(first.ok, true);
+  const second = await json(await post());
+  assert.equal(second.ok, true, 'duplicate is not an error');
+  assert.equal(second.data.reference, first.data.reference, 'same reference returned for duplicate');
+});
+
+test('process page shows inputs and outputs per stage', async () => {
+  const html = await (await fetch(BASE + '/process')).text();
+  assert.ok(html.includes('Input') && html.includes('Output'), 'stage input/output rows rendered');
+});
+
+test('wizard includes the current-technology step', async () => {
+  const html = await (await fetch(BASE + '/start-project')).text();
+  assert.ok(html.includes('01') && html.includes('What are you looking for?'), 'wizard first step renders');
+});
+
+test('global search index is embedded and covers all four content types', async () => {
+  const html = await (await fetch(BASE + '/')).text();
+  // The overlay renders on demand, but its index is serialized into the RSC payload.
+  assert.ok(html.includes('Search (press /)'), 'search trigger present');
+  assert.ok(html.includes('/services/ai-automation'), 'services indexed');
+  assert.ok(html.includes('/work/'), 'work indexed');
+  assert.ok(html.includes('/insights/'), 'insights indexed');
+  assert.ok(html.includes('/industries/'), 'industries indexed');
+});
+
+test('case study pages cross-link related work', async () => {
+  const html = await (await fetch(BASE + '/work/ai-operations-assistant')).text();
+  assert.ok(html.includes('Related work'), 'related section rendered');
+  assert.ok(html.includes('Next case'), 'next-case nav present');
+});
+
+test('header exposes search and client portal links', async () => {
+  const html = await (await fetch(BASE + '/')).text();
+  assert.ok(html.includes('Search (press /)'), 'search trigger present');
+  assert.ok(html.includes('Client Portal'), 'portal link present');
+  assert.ok(html.includes('/industries'), 'industries in nav');
 });

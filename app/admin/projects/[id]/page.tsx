@@ -2,10 +2,10 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth';
-import { getProject, getClient, getProjectMessages, listFiles } from '@/lib/store';
+import { getProject, getClient, getProjectMessages, listFiles, friendlyProjectStatus } from '@/lib/store';
 import { deleteProjectFileAction } from '@/lib/actions';
 import AdminShell from '@/components/admin/AdminShell';
-import { MilestoneEditor, StudioMessageForm, UpdateNoteForm, ProjectStatusForm, AdminFileUpload } from '@/components/admin/ProjectForms';
+import { MilestoneEditor, StudioMessageForm, UpdateNoteForm, ProjectStatusForm, AdminFileUpload, PublishUpdateForm, ActionRequiredControl } from '@/components/admin/ProjectForms';
 import { Badge } from '@/components/ui/primitives';
 import { formatDate } from '@/lib/utils';
 import { pageSeo } from '@/lib/seo';
@@ -40,7 +40,7 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
             {client?.company || 'Unknown client'} · started {formatDate(project.createdAt)}
           </p>
         </div>
-        <Badge tone="accent">{project.status}</Badge>
+        <Badge tone="accent">{friendlyProjectStatus(project.status)}</Badge>
       </div>
 
       <div className="mt-9 grid gap-8 xl:grid-cols-[1.15fr_0.85fr]">
@@ -60,7 +60,28 @@ export default async function AdminProjectDetailPage({ params }: { params: Promi
           </section>
 
           <section className="rounded-2xl border border-line bg-surface p-6">
-            <h2 className="font-display text-[15.5px] font-semibold text-ink">Latest update</h2>
+            <h2 className="font-display text-[15.5px] font-semibold text-ink">Publish an update</h2>
+            <p className="mb-3 mt-1 text-[12px] text-faint">Shows in the client’s Updates tab with a notification.</p>
+            <PublishUpdateForm projectId={project.id} />
+            {project.updates.length > 0 && (
+              <ul className="mt-4 space-y-2 border-t border-line pt-4">
+                {project.updates.slice(0, 4).map((u) => (
+                  <li key={u.id} className="text-[12.5px] text-soft">
+                    <span className="font-medium text-ink">{u.title}</span> · {formatDate(u.at)}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-line bg-surface p-6">
+            <h2 className="font-display text-[15.5px] font-semibold text-ink">Action required</h2>
+            <p className="mb-3 mt-1 text-[12px] text-faint">Flag something the client must confirm — they get a banner with an approve button.</p>
+            <ActionRequiredControl projectId={project.id} current={project.actionRequired} />
+          </section>
+
+          <section className="rounded-2xl border border-line bg-surface p-6">
+            <h2 className="font-display text-[15.5px] font-semibold text-ink">Dashboard “latest update” line</h2>
             <div className="mt-4">
               <UpdateNoteForm projectId={project.id} current={project.latestUpdate.note} />
             </div>

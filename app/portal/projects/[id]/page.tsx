@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth';
-import { getProject, getProjectMessages, markProjectMessagesRead, listFiles } from '@/lib/store';
+import { getProject, getProjectMessages, markProjectMessagesRead, listFiles, friendlyProjectStatus } from '@/lib/store';
 import ProjectTabs from '@/components/portal/ProjectTabs';
 import { Badge } from '@/components/ui/primitives';
 import { pageSeo } from '@/lib/seo';
@@ -33,7 +33,7 @@ export default async function PortalProjectPage({ params }: { params: Promise<{ 
             <span className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-tech text-faint">
               <span className="status-dot status-dot-live" /> {project.deployment.env} · {project.deployment.status}
             </span>
-            <Badge tone="accent">{project.status}</Badge>
+            <Badge tone="accent">{friendlyProjectStatus(project.status)}</Badge>
           </div>
         </div>
       </div>

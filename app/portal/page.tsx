@@ -13,14 +13,15 @@ export const metadata: Metadata = { ...pageSeo({ title: 'Client Portal', descrip
 
 function statusLabel(status: string) {
   const map: Record<string, { label: string; tone: 'accent' | 'ok' | 'neutral' }> = {
-    discovery: { label: 'Discovery', tone: 'neutral' },
-    design: { label: 'Design', tone: 'neutral' },
-    build: { label: 'In build', tone: 'accent' },
-    qa: { label: 'QA', tone: 'accent' },
+    planning: { label: 'Planning', tone: 'neutral' },
+    in_progress: { label: 'In progress', tone: 'accent' },
+    blocked: { label: 'Waiting on something', tone: 'neutral' },
+    in_review: { label: 'In review', tone: 'accent' },
+    ready_to_launch: { label: 'Ready to launch', tone: 'accent' },
     live: { label: 'Live', tone: 'ok' },
-    paused: { label: 'Paused', tone: 'neutral' },
-    complete: { label: 'Complete', tone: 'ok' },
-    support: { label: 'Support', tone: 'ok' },
+    completed: { label: 'Completed', tone: 'ok' },
+    on_hold: { label: 'On hold', tone: 'neutral' },
+    archived: { label: 'Archived', tone: 'neutral' },
   };
   return map[status] || { label: status, tone: 'neutral' as const };
 }

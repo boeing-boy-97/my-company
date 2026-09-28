@@ -1,21 +1,27 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ContactTracker from '@/components/layout/ContactTracker';
 import Cursor from '@/components/layout/Cursor';
 import RouteFx from '@/components/layout/RouteFx';
 import Consultant from '@/components/layout/Consultant';
 import { site } from '@/lib/site';
 import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
+import { buildSearchIndex } from '@/lib/search-index';
+import GlobalSearch from '@/components/layout/GlobalSearch';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Inter_Tight({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
 const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
+export const viewport: Viewport = {
+  themeColor: '#F7F5F1',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  themeColor: '#F7F5F1',
   title: {
     default: `${site.name} — Technology for ambitious businesses`,
     template: `%s — ${site.name}`,
@@ -28,7 +34,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const searchIndex = await buildSearchIndex();
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body>
@@ -39,6 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
         <Header />
         <RouteFx>{children}</RouteFx>
+        <ContactTracker />
+        <GlobalSearch index={searchIndex} />
         <Footer />
         <Consultant />
         <Cursor />

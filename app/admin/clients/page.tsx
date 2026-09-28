@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentSession } from '@/lib/auth';
 import { listClients, listProjects, getLead } from '@/lib/store';
 import AdminShell from '@/components/admin/AdminShell';
-import { ClientForm, ArchiveClientButton } from '@/components/admin/ClientForms';
+import { ClientForm, ArchiveClientButton, InviteClientButton } from '@/components/admin/ClientForms';
 import { EmptyState } from '@/components/ui/primitives';
 import { formatDate } from '@/lib/utils';
 import { pageSeo } from '@/lib/seo';
@@ -39,6 +39,11 @@ export default async function AdminClientsPage({ searchParams }: { searchParams:
           <div className="mt-7 rounded-2xl border border-line bg-surface p-7">
             <ClientForm client={editing} defaultCompany={lead?.companyName} />
           </div>
+          {editing && (
+            <div className="mt-6">
+              <InviteClientButton clientId={editing.id} email={editing.email} />
+            </div>
+          )}
           {editing && (
             <div className="mt-6 flex items-center justify-between">
               <p className="font-mono text-[10.5px] uppercase tracking-tech text-faint">Client since {formatDate(editing.createdAt)}</p>

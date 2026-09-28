@@ -38,6 +38,7 @@ export interface Lead {
   projectTypes: string[];
   objective: string;
   existingAssets: string[];
+  currentTech?: string;
   timeline: string;
   budgetRange: string;
   currency: string;
@@ -57,6 +58,7 @@ export interface Lead {
   utm: { source: string; medium: string; campaign: string };
   activity: LeadActivity[];
   notes: string;
+  archived?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -91,8 +93,17 @@ export interface Project {
   id: string; clientId: string; name: string; summary: string; status: string; progress: number;
   latestUpdate: { at: string; note: string }; nextMilestone: string;
   milestones: Milestone[]; tasks: PortalTask[]; deployment: { env: string; status: string; url: string; lastDeploy: string };
+  updates: ProjectUpdate[];
+  actionRequired: { text: string; at: string } | null;
+  approvals: Approval[];
   createdAt: string;
 }
+
+import { PROJECT_STATUSES, FRIENDLY_STATUS, friendlyProjectStatus } from './utils';
+export { PROJECT_STATUSES, FRIENDLY_STATUS, friendlyProjectStatus };
+
+export interface ProjectUpdate { id: string; at: string; title: string; note: string }
+export interface Approval { id: string; kind: string; label: string; approvedBy: string; approvedAt: string; comment: string }
 
 export interface Session { token: string; role: Role; email: string; name: string; clientId?: string; expiresAt: string }
 
@@ -129,6 +140,7 @@ interface DB {
   outbox: Array<{ id: string; to: string; subject: string; body: string; sentAt: string }>;
   settings: SiteSettings;
   resetTokens: Array<{ token: string; email: string; expiresAt: string }>;
+  audit: Array<{ id: string; actor: string; action: string; resource: string; before?: string; after?: string; at: string }>;
 }
 
 const uid = () => crypto.randomUUID();
@@ -186,6 +198,12 @@ function seed(): DB {
       { id: 't3', title: 'Webhook retry policy', status: 'done' },
     ],
     deployment: { env: 'staging', status: 'healthy', url: 'staging.aurora-demo.app', lastDeploy: iso(1) },
+    updates: [
+      { id: 'u1', at: iso(1), title: 'WhatsApp integration passed QA', note: 'Webhook retries verified; forecast charts move to review next.' },
+      { id: 'u2', at: iso(9), title: 'Build milestone underway', note: 'Core pipeline automation is in development.' },
+    ],
+    actionRequired: null,
+    approvals: [],
     createdAt: iso(40),
   };
 
@@ -217,6 +235,7 @@ function seed(): DB {
     outbox: [],
     settings: {},
     resetTokens: [],
+    audit: [],
   };
 }
 
@@ -301,8 +320,16 @@ function migrate(old: Partial<DB> & { version?: number }): DB {
     resetTokens: old.resetTokens || [],
   };
   // Milestone status migration (done/active/pending → new vocabulary).
+  for (const c of merged.cms.caseStudies) {
+    (c as { nature?: string }).nature ||= 'representative';
+  }
   for (const p of merged.projects) {
     p.createdAt ||= merged.projects.length ? now() : now();
+    p.updates ||= [];
+    p.actionRequired ||= null;
+    p.approvals ||= [];
+    const legacy: Record<string, string> = { discovery: 'planning', design: 'in_progress', build: 'in_progress', qa: 'in_review', paused: 'on_hold', complete: 'completed', support: 'live' };
+    if (legacy[p.status]) p.status = legacy[p.status];
     for (const m of p.milestones as Array<Milestone & { status: string }>) {
       if (m.status === 'done' as string) m.status = 'complete';
       else if (m.status === 'active' as string) m.status = 'in_progress';
@@ -339,6 +366,20 @@ async function persist() {
   const mode = await detectFs();
   if (mode !== 'disk') return; // memory-only on read-only platforms
   await writeFile(DB_PATH(), JSON.stringify(cache, null, 2), 'utf8');
+}
+
+// ---------------- audit log ----------------
+
+export async function audit(actor: string, action: string, resource: string, before?: string, after?: string) {
+  const data = await load();
+  data.audit.unshift({ id: uid(), actor, action, resource, before, after, at: now() });
+  data.audit = data.audit.slice(0, 400);
+  await persist();
+}
+
+export async function listAudit() {
+  const data = await load();
+  return data.audit;
 }
 
 // ---------------- notifications ----------------
@@ -391,12 +432,12 @@ export async function createLead(input: Partial<Lead> & { reference: string }): 
   return lead;
 }
 
-export async function updateLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'owner'>>, activityNote?: string): Promise<Lead | undefined> {
+export async function updateLead(id: string, patch: Partial<Pick<Lead, 'status' | 'notes' | 'owner' | 'archived'>>, activityNote?: string): Promise<Lead | undefined> {
   const data = await load();
   const lead = data.leads.find((l) => l.id === id);
   if (!lead) return undefined;
   Object.assign(lead, patch, { updatedAt: now() });
-  lead.activity.unshift({ id: uid(), type: patch.status ? 'status' : 'note', note: activityNote || (patch.status ? `Status changed to ${patch.status}` : 'Note updated'), at: now() });
+  lead.activity.unshift({ id: uid(), type: patch.archived !== undefined ? 'status' : patch.status ? 'status' : 'note', note: activityNote || (patch.archived !== undefined ? (patch.archived ? 'Archived' : 'Unarchived') : patch.status ? `Status changed to ${patch.status}` : 'Note updated'), at: now() });
   await persist();
   return lead;
 }
@@ -407,6 +448,20 @@ export async function leadCounts(): Promise<Record<string, number>> {
   for (const s of LEAD_STATUSES) counts[s] = 0;
   for (const l of leads) counts[l.status] = (counts[l.status] || 0) + 1;
   return counts;
+}
+
+/** Same email + same objective within a short window → treat as duplicate. */
+export async function findRecentDuplicateBrief(email: string, objective: string, windowMs = 10 * 60_000): Promise<Lead | undefined> {
+  const data = await load();
+  const normEmail = email.trim().toLowerCase();
+  const normObj = objective.trim().toLowerCase();
+  const cutoff = Date.now() - windowMs;
+  return data.leads.find((l) =>
+    l.kind === 'project-brief' &&
+    l.email.trim().toLowerCase() === normEmail &&
+    l.objective.trim().toLowerCase() === normObj &&
+    new Date(l.createdAt).getTime() >= cutoff,
+  );
 }
 
 // ---------------- contacts & applications ----------------
@@ -492,6 +547,23 @@ export async function updateUserPassword(email: string, passwordHash: string) {
   await persist();
 }
 
+/** Create a portal user (if missing) and return a one-time setup token. */
+export async function createPortalInvite(email: string, name: string, clientId: string): Promise<string | null> {
+  const data = await load();
+  const clean = email.toLowerCase();
+  if (!clean || !clean.includes('@')) return null;
+  let user = data.users.find((u) => u.email.toLowerCase() === clean);
+  if (!user) {
+    user = { id: uid(), email: clean, passwordHash: hashPassword(crypto.randomBytes(16).toString('hex')), role: 'client', name: name || 'Client', clientId, status: 'active', createdAt: now() };
+    data.users.push(user);
+    await persist();
+  } else if (!user.clientId) {
+    user.clientId = clientId;
+    await persist();
+  }
+  return createResetToken(user.email);
+}
+
 export async function createResetToken(email: string): Promise<string> {
   const data = await load();
   const token = crypto.randomBytes(24).toString('hex');
@@ -552,7 +624,7 @@ export async function createProject(input: { clientId: string; name: string; sum
   const data = await load();
   const project: Project = {
     id: `prj-${uid().slice(0, 8)}`, clientId: input.clientId, name: input.name, summary: input.summary,
-    status: 'discovery', progress: 0, latestUpdate: { at: now(), note: 'Project created.' },
+    status: 'planning', progress: 0, latestUpdate: { at: now(), note: 'Project created.' },
     nextMilestone: 'Discovery call',
     milestones: [
       { id: uid(), title: 'Discovery', detail: 'Problem mapping and success criteria.', status: 'in_progress', progress: 0, due: '' },
@@ -563,12 +635,20 @@ export async function createProject(input: { clientId: string; name: string; sum
       { id: uid(), title: 'Deployment', detail: 'Staged rollout and monitoring.', status: 'upcoming', progress: 0, due: '' },
       { id: uid(), title: 'Support', detail: 'Health reports and improvements.', status: 'upcoming', progress: 0, due: '' },
     ],
-    tasks: [], deployment: { env: '—', status: 'not deployed', url: '', lastDeploy: '' }, createdAt: now(),
+    tasks: [], deployment: { env: '—', status: 'not deployed', url: '', lastDeploy: '' },
+    updates: [], actionRequired: null, approvals: [], createdAt: now(),
   };
   data.projects.unshift(project);
   await persist();
   await notify('client', 'project', `A new project was opened: ${project.name}`, `/portal/projects/${project.id}`);
   return project;
+}
+
+export async function saveProjectRecord(project: Project): Promise<void> {
+  const data = await load();
+  const idx = data.projects.findIndex((p) => p.id === project.id);
+  if (idx >= 0) data.projects[idx] = project;
+  await persist();
 }
 
 export async function updateProject(id: string, patch: Partial<Pick<Project, 'name' | 'summary' | 'status' | 'progress' | 'nextMilestone' | 'latestUpdate'>>): Promise<Project | undefined> {

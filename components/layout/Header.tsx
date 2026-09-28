@@ -116,7 +116,21 @@ export default function Header() {
               ))}
             </nav>
 
-            <div className="hidden lg:block">
+            <div className="hidden items-center gap-2 lg:flex">
+              <button
+                onClick={() => window.dispatchEvent(new Event('kiln:open-search'))}
+                aria-label="Search (press /)"
+                title="Search (press /)"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-soft transition-colors hover:border-ink/30 hover:text-ink"
+              >
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                  <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="m11 11 3.2 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+              <Link href="/portal" className="rounded-full border border-line px-4 py-2.5 text-[12.5px] font-medium text-soft transition-colors hover:border-ink/30 hover:text-ink">
+                Client Portal
+              </Link>
               <CtaButton />
             </div>
 
@@ -159,11 +173,28 @@ export default function Header() {
             ))}
           </nav>
           <div className={`mt-8 transition-all delay-300 duration-500 ${open ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <button
+              onClick={() => {
+                setOpen(false);
+                window.dispatchEvent(new Event('kiln:open-search'));
+              }}
+              tabIndex={open ? 0 : -1}
+              className="mb-3 inline-flex items-center gap-2 rounded-full border border-line px-7 py-4 text-[15px] font-medium text-ink"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
+                <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.6" />
+                <path d="m11 11 3.2 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              Search
+            </button>
             <Link href="/start-project" tabIndex={open ? 0 : -1} className="inline-flex items-center gap-2 rounded-full bg-ink px-7 py-4 text-[15px] font-medium text-paper">
               Start a Project
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
                 <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
+            </Link>
+            <Link href="/portal" tabIndex={open ? 0 : -1} className="mt-3 inline-flex items-center gap-2 rounded-full border border-line px-7 py-4 text-[15px] font-medium text-ink">
+              Client Portal
             </Link>
           </div>
           <div className={`mt-auto pt-12 transition-all delay-500 duration-500 ${open ? 'opacity-100' : 'opacity-0'}`}>

@@ -40,6 +40,7 @@ export const site = {
 // Primary navigation — single source of truth for the site's route map.
 export const navLinks = [
   { label: 'Work', href: '/work' },
+  { label: 'Industries', href: '/industries' },
   { label: 'Process', href: '/process' },
   { label: 'About', href: '/about' },
   { label: 'Insights', href: '/insights' },

@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import CaseVisual from '@/components/work/CaseVisual';
 import CaseNav from '@/components/work/CaseNav';
 import { cmsPublished, cmsGet, cmsList, type CaseStudyRecord } from '@/lib/store';
+import { NATURE_LABELS } from '@/content/caseStudies';
 import { pageSeo, breadcrumbJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -55,7 +56,12 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
             </ol>
           </nav>
           <Reveal>
-            <span className="label-tech">Case study</span>
+            <span className="flex flex-wrap items-center gap-3">
+              <span className="label-tech">Case study</span>
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 font-mono text-[10px] uppercase tracking-tech text-accentdeep">
+                {NATURE_LABELS[(cs.nature as keyof typeof NATURE_LABELS) || 'representative'] || 'Representative build'}
+              </span>
+            </span>
           </Reveal>
           <Reveal delay={80}>
             <h1 className="display-tight mt-5 max-w-[880px] font-display text-[clamp(2.2rem,5.6vw,4.2rem)] font-semibold leading-[1.04] text-ink">{cs.title}</h1>
@@ -132,6 +138,35 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               ))}
             </div>
           </section>
+
+          {/* related case studies */}
+          {(() => {
+            const others = caseStudies.filter((c) => c.slug !== cs.slug);
+            const related = [
+              ...others.filter((c) => c.industry === cs.industry),
+              ...others.filter((c) => c.industry !== cs.industry && c.category === cs.category),
+              ...others,
+            ].filter((c, i, arr) => arr.findIndex((x) => x.slug === c.slug) === i).slice(0, 3);
+            if (related.length === 0) return null;
+            return (
+              <section className="mt-12" aria-label="Related case studies">
+                <p className="label-tech">Related work</p>
+                <ul className="mt-4 divide-y divide-linedark rounded-2xl border border-line bg-surface">
+                  {related.map((r) => (
+                    <li key={r.slug}>
+                      <Link href={`/work/${r.slug}`} className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-paper">
+                        <span>
+                          <span className="block text-[14px] font-medium text-ink">{r.title}</span>
+                          <span className="mt-0.5 block text-[12px] text-faint">{r.industry} · {r.category}</span>
+                        </span>
+                        <span aria-hidden className="text-faint">→</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })()}
 
           <div className="mt-14 flex flex-wrap items-center gap-4">
             <Button href="/start-project">Start a Project Like This</Button>

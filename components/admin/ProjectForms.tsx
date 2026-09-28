@@ -1,7 +1,8 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createProjectAction, upsertMilestoneAction, sendStudioMessage, updateProjectAction, uploadProjectFile } from '@/lib/actions';
+import { createProjectAction, upsertMilestoneAction, sendStudioMessage, updateProjectAction, uploadProjectFile, publishProjectUpdateAction, setActionRequiredAction } from '@/lib/actions';
+import { PROJECT_STATUSES, friendlyProjectStatus } from '@/lib/utils';
 import type { Client, Project, Milestone } from '@/lib/store';
 
 export function CreateProjectForm({ clients }: { clients: Client[] }) {
@@ -244,7 +245,7 @@ export function ProjectStatusForm({ projectId, project }: { projectId: string; p
         <div>
           <label htmlFor="ps-status" className="mb-1 block text-[12px] font-medium text-soft">Status</label>
           <select id="ps-status" value={status} onChange={(e) => setStatus(e.target.value)} className="field w-full text-[13.5px]">
-            {['discovery', 'design', 'build', 'qa', 'live', 'support', 'paused', 'complete'].map((s) => <option key={s} value={s}>{s}</option>)}
+            {PROJECT_STATUSES.map((st) => <option key={st} value={st}>{friendlyProjectStatus(st)}</option>)}
           </select>
         </div>
         <div>
@@ -290,6 +291,83 @@ export function AdminFileUpload({ projectId }: { projectId: string }) {
         <input type="file" onChange={onFile} className="sr-only" aria-label="Upload a file to this project" />
       </label>
       {error && <p role="alert" className="mt-2 text-[12.5px] text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+
+export function PublishUpdateForm({ projectId }: { projectId: string }) {
+  const [title, setTitle] = useState('');
+  const [note, setNote] = useState('');
+  const [error, setError] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    startTransition(async () => {
+      const res = await publishProjectUpdateAction(projectId, title, note);
+      if (res.ok) {
+        setTitle('');
+        setNote('');
+        router.refresh();
+      } else setError(res.error || 'Could not publish');
+    });
+  };
+
+  return (
+    <form onSubmit={submit} className="space-y-2.5">
+      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Update title — e.g. “Payments integration passed QA”" aria-label="Update title" className="field w-full text-[13.5px]" />
+      <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="What changed and what it means for the client. Shows in their Updates tab." aria-label="Update detail" className="field w-full resize-y text-[13.5px]" />
+      {error && <p role="alert" className="text-[12px] text-red-600">{error}</p>}
+      <button type="submit" disabled={isPending || !title.trim() || !note.trim()} className="rounded-full bg-ink px-5 py-2.5 text-[12.5px] font-medium text-paper hover:bg-coal disabled:opacity-50">
+        {isPending ? 'Publishing…' : 'Publish to client'}
+      </button>
+    </form>
+  );
+}
+
+export function ActionRequiredControl({ projectId, current }: { projectId: string; current: { text: string; at: string } | null }) {
+  const [text, setText] = useState('');
+  const [error, setError] = useState('');
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const set = (value: string | null) => {
+    setError('');
+    startTransition(async () => {
+      const res = await setActionRequiredAction(projectId, value);
+      if (res.ok) {
+        setText('');
+        router.refresh();
+      } else setError(res.error || 'Could not update');
+    });
+  };
+
+  return (
+    <div className="space-y-2.5">
+      {current ? (
+        <div className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-3">
+          <p className="text-[13px] font-medium text-ink">{current.text}</p>
+          <p className="mt-1 font-mono text-[9.5px] uppercase tracking-wide text-faint">Flagged {new Date(current.at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</p>
+        </div>
+      ) : (
+        <p className="text-[12.5px] text-faint">Nothing is currently flagged for the client.</p>
+      )}
+      {current ? (
+        <button onClick={() => set(null)} disabled={isPending} className="rounded-full border border-line px-5 py-2.5 text-[12.5px] font-medium text-soft hover:border-ink/30 hover:text-ink disabled:opacity-50">
+          Clear flag
+        </button>
+      ) : (
+        <>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="What do you need from the client? They see a prominent banner with an approve button." aria-label="Action required text" className="field w-full resize-y text-[13.5px]" />
+          {error && <p role="alert" className="text-[12px] text-red-600">{error}</p>}
+          <button onClick={() => set(text)} disabled={isPending || !text.trim()} className="rounded-full bg-accent px-5 py-2.5 text-[12.5px] font-semibold text-white hover:bg-accentdeep disabled:opacity-50">
+            {isPending ? 'Setting…' : 'Flag action required'}
+          </button>
+        </>
+      )}
     </div>
   );
 }

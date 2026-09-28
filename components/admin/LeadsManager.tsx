@@ -33,10 +33,12 @@ export default function LeadsManager({ leads, counts }: { leads: Lead[]; counts:
   const [status, setStatus] = useState<(typeof STATUSES)[number]>('all');
   const [sort, setSort] = useState<SortKey>('date');
   const [page, setPage] = useState(1);
+  const [showArchived, setShowArchived] = useState(false);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = leads.filter((l) => {
+      if (l.archived && !showArchived) return false;
       const statusOk = status === 'all' || l.status === status;
       const qOk =
         !q ||
@@ -49,7 +51,7 @@ export default function LeadsManager({ leads, counts }: { leads: Lead[]; counts:
       return (a.companyName || a.contactName).localeCompare(b.companyName || b.contactName);
     });
     return list;
-  }, [leads, query, status, sort]);
+  }, [leads, query, status, sort, showArchived]);
 
   const pages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const safePage = Math.min(page, pages);
@@ -91,6 +93,10 @@ export default function LeadsManager({ leads, counts }: { leads: Lead[]; counts:
             <option value="budget">Budget (high → low)</option>
             <option value="company">Company A–Z</option>
           </select>
+          <label className="flex cursor-pointer items-center gap-2 text-[12px] font-medium text-soft">
+            <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} className="h-3.5 w-3.5 accent-[#17191E]" />
+            Show archived
+          </label>
         </div>
       </div>
 
@@ -120,6 +126,7 @@ export default function LeadsManager({ leads, counts }: { leads: Lead[]; counts:
                   <Link href={`/admin/leads/${lead.id}`} className="font-mono text-[12.5px] font-semibold text-accentdeep underline-offset-2 hover:underline">
                     {lead.reference}
                   </Link>
+                  {lead.archived && <span className="ml-2 rounded-full border border-line px-2 py-0.5 font-mono text-[9px] uppercase tracking-wide text-faint">archived</span>}
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-[13.5px] font-medium text-ink">{lead.contactName}</p>

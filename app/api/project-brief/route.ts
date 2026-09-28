@@ -1,6 +1,6 @@
 import { apiOk, apiErr, clientIp } from '@/lib/api';
 import { rateLimit } from '@/lib/rate-limit';
-import { createLead, sendMail } from '@/lib/store';
+import { createLead, sendMail, findRecentDuplicateBrief } from '@/lib/store';
 import { makeRef } from '@/lib/utils';
 import { sanitize } from '@/lib/validate';
 import { LeadSchema } from '@/lib/leadSchema';
@@ -23,7 +23,12 @@ export async function POST(request: Request) {
   }
 
   const data = parsed.data;
-  const reference = makeRef('PB');
+
+  // Duplicate detection: same email + same objective within 10 minutes → return existing reference.
+  const dup = await findRecentDuplicateBrief(data.email, data.objective);
+  if (dup) return apiOk({ id: dup.id, reference: dup.reference, status: dup.status, createdAt: dup.createdAt, duplicate: true }, 200);
+
+  const reference = makeRef();
   const lead = await createLead({
     reference,
     source: 'api',

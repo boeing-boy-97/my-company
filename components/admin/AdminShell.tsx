@@ -51,6 +51,9 @@ export default async function AdminShell({ email, pathname, children }: { email:
                 {item.label}
               </Link>
             ))}
+            <Link href="/admin/audit" className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${isActive('/admin/audit') ? 'bg-paper text-ink' : 'text-paper/70 hover:bg-paper/10 hover:text-paper'}`}>
+              Audit
+            </Link>
             <Link href="/admin/settings" className={`shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium transition-colors ${isActive('/admin/settings') ? 'bg-paper text-ink' : 'text-paper/70 hover:bg-paper/10 hover:text-paper'}`}>
               Settings
             </Link>

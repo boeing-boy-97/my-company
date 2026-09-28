@@ -48,18 +48,28 @@ Visitor ── start-project wizard ──▶ Lead (CRM)
 Admin   ── pipeline: new → contacted → qualified → discovery → proposal
            → negotiation → won / lost (owner, activity timeline, notes)
         ── won: create Client ▶ create Project (7 standard milestones)
-Client  ── portal: dashboard, projects, milestones, messages (read/unread),
-           file upload/download with per-project authorization
-        ── password reset via one-hour signed tokens
+        ── project ops: publish updates, flag ACTION REQUIRED, audit log
+Client  ── portal: dashboard, projects, updates feed, milestones, messages,
+           approvals (recorded with name + timestamp), file upload/download
+        ── portal invites + password reset via one-hour signed tokens
 ```
+
+Reference numbers for incoming briefs use a human-readable, non-sequential
+format: `KD-2026-XXXXX`. Duplicate submissions (same email + same objective
+within 10 minutes) return the existing reference instead of creating a new lead.
 
 ### Admin
 
 - `/admin` — stats (new leads, active projects, awaiting response, upcoming milestones, unread messages), quick actions, tables
-- `/admin/leads` — search, filter by all 8 statuses, sort, pagination · `/admin/leads/[id]` — full brief, UTM/source, activity timeline, owner assignment, notes
-- `/admin/projects` + `/admin/projects/[id]` — milestone editor (upcoming / in progress / blocked / complete), client messages, latest-update posts, file management
-- `/admin/clients` — CRUD with archive (soft delete)
-- `/admin/settings` — contact details overrides (footer + contact page update immediately)
+- `/admin/leads` — search, filter by all 8 statuses, sort, pagination · `/admin/leads/[id]` — tabbed detail (Overview / Brief / Activity / Messages / Notes / Client / Related project), archive/unarchive, owner assignment, notes
+- `/admin/projects` + `/admin/projects/[id]` — search + status filter, milestone editor, client messages, publish titled updates to the client feed, ACTION REQUIRED flags, file management
+- `/admin/clients` — CRUD with archive (soft delete) + portal invite (creates the portal user and emails a one-time setup link)
+- `/admin/audit` — who did what and when: status changes, project creation, milestone completions, client invites, publishes
+- `/admin/settings` — contact details overrides (footer + contact page update immediately), active storage mode readout
+
+Project statuses use an operational vocabulary (`planning`, `in_progress`,
+`blocked`, `in_review`, `ready_to_launch`, `live`, `completed`, `on_hold`,
+`archived`); clients see friendly labels such as “Waiting on something”.
 
 ### CMS (admin)
 
@@ -67,7 +77,14 @@ Case studies, insights, testimonials, team and jobs are **fully editable in the 
 
 ### Client portal
 
-Dashboard, cross-project milestones/messages/files tables, real file uploads (validated types, 10 MB cap, server-generated keys) and authorized downloads via `GET /api/files/:id`.
+Dashboard, cross-project milestones/messages/files tables, real file uploads (validated types, 10 MB cap, server-generated keys) and authorized downloads via `GET /api/files/:id`. Each project has an **Updates** tab (studio-published progress feed), a prominent **action-required** banner with one-click approve, and an approval history recorded with the client’s name and timestamp.
+
+### Public site extras
+
+- **Global search** — press `/` anywhere (or the header search button). Searches services, work, insights and industries; Esc closes, arrow keys + Enter navigate.
+- **`/cookies`** — plain-language cookie policy (one essential session cookie, no trackers).
+- **`/services/system-integration`** — alias for the Systems & Integrations service page.
+- Case studies carry honest **nature badges** (Representative build / Concept build / Internal project) and cross-link related work.
 
 ## API
 

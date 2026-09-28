@@ -41,6 +41,7 @@ export default function LoginForm({ role, title, subtitle, demoEmail, demoPasswo
         </button>
       </form>
 
+      {process.env.NEXT_PUBLIC_SHOW_DEMO_HINT === '1' && (
       <div className="mt-4 rounded-2xl border border-dashed border-line bg-paper px-6 py-4">
         <p className="font-mono text-[10px] uppercase tracking-tech text-faint">Development demo credentials</p>
         <p className="mt-2 font-mono text-[12px] leading-relaxed text-soft">
@@ -59,6 +60,7 @@ export default function LoginForm({ role, title, subtitle, demoEmail, demoPasswo
           Fill demo credentials
         </button>
       </div>
+      )}
     </div>
   );
 }

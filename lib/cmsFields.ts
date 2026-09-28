@@ -32,6 +32,7 @@ export const cmsFields: Record<CmsKind, CmsField[]> = {
     { key: 'client', label: 'Client', type: 'text' },
     { key: 'industry', label: 'Industry', type: 'text' },
     { key: 'category', label: 'Category', type: 'text' },
+    { key: 'nature', label: 'Nature', type: 'text', hint: 'representative | concept | internal' },
     { key: 'year', label: 'Year', type: 'text' },
     { key: 'summary', label: 'Summary', type: 'textarea', full: true },
     { key: 'challenge', label: 'The challenge', type: 'lines', hint: 'One paragraph per line', full: true },

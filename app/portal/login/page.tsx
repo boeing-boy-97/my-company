@@ -13,6 +13,7 @@ export const metadata: Metadata = { ...pageSeo({ title: 'Client Login', descript
 export default async function PortalLoginPage() {
   const session = await getCurrentSession();
   if (session?.role === 'client') redirect('/portal');
+  const showHint = process.env.NEXT_PUBLIC_SHOW_DEMO_HINT === '1';
   const creds = credentialsFor('client');
 
   return (
@@ -22,7 +23,7 @@ export default async function PortalLoginPage() {
         <div className="mb-8 flex justify-center">
           <Logo />
         </div>
-        <LoginForm role="client" title="Client Portal" subtitle="Projects, milestones, messages and files." demoEmail={creds.email} demoPassword={creds.password} />
+        <LoginForm role="client" title="Client Portal" subtitle="Projects, milestones, messages and files." demoEmail={showHint ? creds.email : ''} demoPassword={showHint ? creds.password : ''} />
         <p className="mt-5 text-center">
           <Link href="/portal/forgot" className="link-underline text-[12.5px] text-faint hover:text-ink">Forgot your password?</Link>
         </p>

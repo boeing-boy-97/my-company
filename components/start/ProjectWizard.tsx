@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { OptionChip, TextAreaField, TextField, FieldLabel, FieldError, SelectField } from '@/components/ui/Fields';
 import { submitProjectBrief, trackAction, type ProjectBriefInput } from '@/lib/actions';
@@ -11,7 +12,7 @@ const CHANNELS = ['Email', 'Phone', 'WhatsApp'];
 const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AED'] as const;
 const CURRENCY_LABELS: Record<(typeof CURRENCIES)[number], string> = { USD: '$ USD', INR: '₹ INR', EUR: '€ EUR', GBP: '£ GBP', AED: 'AED' };
 
-const STEPS = ['What', 'Problem', 'Assets', 'Timeline', 'Budget', 'Company', 'Contact', 'Review'];
+const STEPS = ['What', 'Problem', 'Assets', 'Current', 'Timeline', 'Budget', 'Company', 'Contact', 'Review'];
 
 // Session persistence — progress survives refresh/back within the browser session.
 const STORAGE_KEY = 'kiln-wizard-v1';
@@ -22,6 +23,7 @@ interface SavedWizard {
   projectTypes: string[];
   objective: string;
   assets: string[];
+  currentTech: string;
   timeline: string;
   budget: string;
   currency: string;
@@ -42,7 +44,8 @@ function loadSaved(): SavedWizard | null {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as SavedWizard;
-    return parsed && parsed.v === 1 ? parsed : null;
+    if (parsed.v !== 2) return null;
+    return parsed;
   } catch {
     return null;
   }
@@ -80,6 +83,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
   });
   const [objective, setObjective] = useState(saved?.objective || initialIdea || '');
   const [assets, setAssets] = useState<string[]>(saved?.assets || []);
+  const [currentTech, setCurrentTech] = useState(saved?.currentTech || '');
   const [timeline, setTimeline] = useState(saved?.timeline || '');
   const [budget, setBudget] = useState(saved?.budget || '');
   const [currency, setCurrency] = useState(saved?.currency || 'USD');
@@ -96,7 +100,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState('');
-  const [submitted, setSubmitted] = useState<{ ref: string } | null>(null);
+  const [submitted, setSubmitted] = useState<{ ref: string; duplicate?: boolean } | null>(null);
   const [isPending, startTransition] = useTransition();
   const startedRef = useRef(false);
   const topRef = useRef<HTMLDivElement>(null);
@@ -125,14 +129,14 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
     if (submitted) return;
     try {
       const snapshot: SavedWizard = {
-        v: 1, step, projectTypes, objective, assets, timeline, budget, currency,
+        v: 2, step, projectTypes, objective, assets, currentTech, timeline, budget, currency,
         companyName, website, industry, country, contactName, email, phone, whatsapp, channel,
       };
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     } catch {
       /* storage unavailable — the form still works, it just won't persist */
     }
-  }, [step, projectTypes, objective, assets, timeline, budget, currency, companyName, website, industry, country, contactName, email, phone, whatsapp, channel, submitted]);
+  }, [step, projectTypes, objective, assets, currentTech, timeline, budget, currency, companyName, website, industry, country, contactName, email, phone, whatsapp, channel, submitted]);
 
   // Warn before leaving the page with unsaved progress.
   useEffect(() => {
@@ -172,9 +176,9 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
     const errs: Record<string, string> = {};
     if (step === 0 && projectTypes.length === 0) errs.types = 'Pick at least one option — “Other” works too.';
     if (step === 1 && objective.trim().length < 12) errs.objective = 'Tell us a little more — one or two sentences is perfect.';
-    if (step === 3 && !timeline) errs.timeline = 'Select a timeline — “Flexible” is fine.';
-    if (step === 4 && !budget) errs.budget = 'Select a range — “Not sure” is a valid answer.';
-    if (step === 6) {
+    if (step === 4 && !timeline) errs.timeline = 'Select a timeline — “Flexible” is fine.';
+    if (step === 5 && !budget) errs.budget = 'Select a range — “Not sure” is a valid answer.';
+    if (step === 7) {
       if (!contactName.trim()) errs.contactName = 'Your name is required';
       if (!email.trim()) errs.email = 'Email is required';
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) errs.email = 'Enter a valid email address';
@@ -198,13 +202,14 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
       { label: 'Project type', value: projectTypes.join(', ') || '—' },
       { label: 'Objective', value: objective.trim() || '—' },
       { label: 'Existing assets', value: assets.join(', ') || '—' },
+      { label: 'Current tech', value: currentTech.trim() || '—' },
       { label: 'Timeline', value: timeline || '—' },
       { label: 'Budget', value: budget ? `${budget}${budget !== 'Not sure' ? ` (${currency})` : ''}` : '—' },
       { label: 'Company', value: companyName || '—' },
       { label: 'Contact', value: `${contactName} · ${email}` || '—' },
       { label: 'Preferred channel', value: channel },
     ],
-    [projectTypes, objective, assets, timeline, budget, currency, companyName, contactName, email, channel]
+    [projectTypes, objective, assets, currentTech, timeline, budget, currency, companyName, contactName, email, channel]
   );
 
   const submit = () => {
@@ -213,6 +218,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
       projectTypes,
       objective,
       existingAssets: assets,
+      currentTech,
       timeline,
       budgetRange: budget,
       currency,
@@ -236,12 +242,12 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         } catch {
           /* nothing to clear */
         }
-        setSubmitted({ ref: res.ref || 'PB' });
+        setSubmitted({ ref: res.ref || '—', duplicate: Boolean(res.duplicate) });
         return;
       }
       setServerError(res.error || 'Something went wrong — please try again.');
       if (res.errors && Object.keys(res.errors).length > 0) {
-        setStep(6);
+        setStep(7);
         setErrors(res.errors);
       }
     });
@@ -265,6 +271,9 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
             <span className="font-mono text-[10.5px] uppercase tracking-tech text-faint">Reference</span>
             <span className="font-mono text-[15px] font-semibold text-accentdeep">{submitted.ref}</span>
           </div>
+          {submitted.duplicate && (
+            <p className="mx-auto mt-3 max-w-[420px] text-[13px] text-faint">We already had this exact brief from you — no duplicate created, same reference applies.</p>
+          )}
           <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
             {[
               { n: '01', t: 'We review', d: 'Your brief reaches the team today.' },
@@ -277,6 +286,14 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
                 <p className="mt-0.5 text-[12px] leading-relaxed text-faint">{s.d}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <Link href="/" className="inline-flex items-center justify-center rounded-full border border-line px-7 py-3 text-[14px] font-medium text-ink transition-colors hover:border-ink/40">
+              Back to home
+            </Link>
+            <Link href="/work" className="inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-[14px] font-medium text-paper transition-colors hover:bg-coal">
+              View our work
+            </Link>
           </div>
         </div>
       </div>
@@ -358,8 +375,19 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </fieldset>
         )}
 
-        {/* STEP 3 — timeline */}
+        {/* STEP 3 — current technology (optional) */}
         {step === 3 && (
+          <div>
+            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What technology are you running today?</h2>
+            <p className="mt-2 text-[14.5px] text-soft">Optional — but it helps us understand what has to connect. Spreadsheets count.</p>
+            <div className="mt-6">
+              <TextAreaField id="currentTech" label="Current systems & tools" hint="Optional — skip if not sure" value={currentTech} onChange={(e) => setCurrentTech(e.target.value)} rows={4} placeholder="e.g. Shopify store, Tally for accounting, enquiries tracked in a Google Sheet, WhatsApp Business…" />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4 — timeline */}
+        {step === 4 && (
           <fieldset>
             <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">When do you want this running?</legend>
             <div className="mt-7 grid gap-2.5 sm:grid-cols-2">
@@ -373,8 +401,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </fieldset>
         )}
 
-        {/* STEP 4 — budget */}
-        {step === 4 && (
+        {/* STEP 5 — budget */}
+        {step === 5 && (
           <fieldset>
             <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What budget range are you thinking?</legend>
             <p className="mt-2 text-[14.5px] text-soft">A range helps us recommend the right scope. “Not sure” is a perfectly good answer.</p>
@@ -398,8 +426,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </fieldset>
         )}
 
-        {/* STEP 5 — company */}
-        {step === 5 && (
+        {/* STEP 6 — company */}
+        {step === 6 && (
           <div>
             <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Tell us about your company</h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
@@ -411,8 +439,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </div>
         )}
 
-        {/* STEP 6 — contact */}
-        {step === 6 && (
+        {/* STEP 7 — contact */}
+        {step === 7 && (
           <div>
             <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">How should we contact you?</h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
@@ -434,8 +462,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </div>
         )}
 
-        {/* STEP 7 — review */}
-        {step === 7 && (
+        {/* STEP 8 — review */}
+        {step === 8 && (
           <div>
             <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Your project brief is ready.</h2>
             <p className="mt-2 text-[14.5px] text-soft">One look, then send. You can go back and edit anything.</p>
@@ -456,7 +484,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         )}
 
         {/* nav buttons */}
-        <div className="mt-9 flex items-center justify-between border-t border-linedark pt-6">
+        <div className="mt-9 hidden items-center justify-between border-t border-linedark pt-6 md:flex">
           <button type="button" onClick={back} disabled={step === 0 || isPending} className="rounded-full px-5 py-2.5 text-[14px] font-medium text-soft transition-colors hover:text-ink disabled:invisible">
             ← Back
           </button>
@@ -480,9 +508,30 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         </div>
       </div>
 
-      <p className="mt-6 text-center text-[12.5px] text-faint">
+      <p className="mt-6 pb-24 text-center text-[12.5px] text-faint md:pb-0">
         No spam, no obligation. Your brief goes directly to the team — protected by server-side validation and rate limiting.
       </p>
+
+      {/* sticky mobile action bar */}
+      <div className="fixed inset-x-0 bottom-0 z-[90] border-t border-line bg-paper/95 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)] pt-3 backdrop-blur md:hidden">
+        <div className="mx-auto flex max-w-[820px] items-center justify-between gap-3">
+          <button type="button" onClick={back} disabled={step === 0 || isPending} className="rounded-full border border-line px-5 py-2.5 text-[13.5px] font-medium text-soft disabled:opacity-40">
+            ← Back
+          </button>
+          <p className="font-mono text-[10px] uppercase tracking-tech text-faint">
+            {String(step + 1).padStart(2, '0')} / {String(STEPS.length).padStart(2, '0')} · {STEPS[step]}
+          </p>
+          {step < STEPS.length - 1 ? (
+            <button type="button" onClick={next} className="rounded-full bg-ink px-6 py-2.5 text-[13.5px] font-medium text-paper active:scale-[0.985]">
+              Next →
+            </button>
+          ) : (
+            <button type="button" onClick={submit} disabled={isPending} className="rounded-full bg-accent px-6 py-2.5 text-[13.5px] font-semibold text-white disabled:opacity-60">
+              {isPending ? 'Sending…' : 'Submit'}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

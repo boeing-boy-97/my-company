@@ -18,7 +18,9 @@ import {
   updateClient, createProject, updateProject, upsertMilestone, listProjects, getProject,
   addFile, deleteFile, getFile, cmsList, cmsGet, cmsSave, cmsDelete, notify, writeUpload, removeUpload,
   saveSettings, getProjectMessages, markProjectMessagesRead, listFiles,
+  findRecentDuplicateBrief, audit, createPortalInvite, friendlyProjectStatus, PROJECT_STATUSES, saveProjectRecord,
   type LeadStatus, type Role, type MilestoneStatus, type CmsStatus, type CmsRecord,
+  type ProjectUpdate, type Approval,
 } from './store';
 import { authenticate, getCurrentSession, loginAs, logout } from './auth';
 import { consultRespond, detectSolution, type ConsultState } from './consult';
@@ -48,6 +50,7 @@ export interface ProjectBriefInput {
   projectTypes: string[];
   objective: string;
   existingAssets: string[];
+  currentTech?: string;
   timeline: string;
   budgetRange: string;
   currency: string;
@@ -83,7 +86,14 @@ export async function submitProjectBrief(input: ProjectBriefInput): Promise<Acti
   if (vUrl(input.website || '')) errors.website = 'Enter a valid URL (https://…)';
   if (Object.keys(errors).length) return { ok: false, error: 'Please review the highlighted fields.', errors };
 
-  const reference = makeRef('PB');
+  // Duplicate detection: same email + same objective within 10 minutes → return existing reference.
+  const dup = await findRecentDuplicateBrief(email, objective);
+  if (dup) {
+    await track('project_form_duplicate_blocked', { reference: dup.reference });
+    return { ok: true, ref: dup.reference, id: dup.id, duplicate: true };
+  }
+
+  const reference = makeRef();
   const lead = await createLead({
     reference,
     source: 'website-form',
@@ -91,6 +101,7 @@ export async function submitProjectBrief(input: ProjectBriefInput): Promise<Acti
     projectTypes: sanitizeArray(input.projectTypes),
     objective,
     existingAssets: sanitizeArray(input.existingAssets || []),
+    currentTech: sanitize(input.currentTech || '', 2000),
     timeline: sanitize(input.timeline, 40),
     budgetRange: sanitize(input.budgetRange, 40),
     currency: ['USD', 'INR', 'EUR', 'GBP', 'AED'].includes(input.currency) ? input.currency : 'USD',
@@ -240,7 +251,10 @@ export async function updateLeadStatusAction(id: string, status: string): Promis
   if (!LEAD_STATUS_SET.includes(status as LeadStatus)) return { ok: false, error: 'Invalid status' };
   const leads = await listLeads();
   if (!leads.some((l) => l.id === id)) return { ok: false, error: 'Lead not found' };
+  const admin = await requireAdmin();
+  const lead = leads.find((l) => l.id === id);
   await updateLead(id, { status: status as LeadStatus });
+  await audit(admin?.email || 'admin', 'lead.status_changed', lead ? lead.reference : id, lead?.status, status);
   return { ok: true };
 }
 
@@ -273,6 +287,8 @@ export async function createClientAction(input: { company: string; contactName: 
     currency: ['USD', 'INR', 'EUR', 'GBP', 'AED'].includes(input.currency) ? input.currency : 'USD',
     notes: sanitize(input.notes, 2000),
   });
+  const admin = await requireAdmin();
+  await audit(admin?.email || 'admin', 'client.created', company);
   return { ok: true, id: client.id };
 }
 
@@ -293,12 +309,22 @@ export async function createProjectAction(input: { clientId: string; name: strin
   if (!name) return { ok: false, error: 'Project name is required', errors: { name: 'Required' } };
   if (!(await listClients()).some((c) => c.id === input.clientId)) return { ok: false, error: 'Select a valid client' };
   const project = await createProject({ clientId: input.clientId, name, summary: sanitize(input.summary, 1000) });
+  const admin = await requireAdmin();
+  await audit(admin?.email || 'admin', 'project.created', name);
   return { ok: true, id: project.id };
 }
 
 export async function updateProjectAction(id: string, patch: { name?: string; summary?: string; status?: string; nextMilestone?: string; progress?: number; note?: string }): Promise<ActionResult> {
-  if (!(await requireAdmin())) return UNAUTHORIZED;
-  if (!(await getProject(id))) return { ok: false, error: 'Project not found' };
+  const admin = await requireAdmin();
+  if (!admin) return UNAUTHORIZED;
+  const existing = await getProject(id);
+  if (!existing) return { ok: false, error: 'Project not found' };
+  if (patch.status !== undefined && !PROJECT_STATUSES.includes(patch.status as typeof PROJECT_STATUSES[number])) {
+    return { ok: false, error: 'Unknown project status' };
+  }
+  if (patch.status && patch.status !== existing.status) {
+    await audit(admin.email, 'project.status_changed', existing.name, friendlyProjectStatus(existing.status), friendlyProjectStatus(patch.status));
+  }
   await updateProject(id, {
     ...(patch.name !== undefined ? { name: sanitize(patch.name, 160) } : {}),
     ...(patch.summary !== undefined ? { summary: sanitize(patch.summary, 1000) } : {}),
@@ -324,6 +350,8 @@ export async function upsertMilestoneAction(projectId: string, milestone: { id?:
     due: sanitize(milestone.due || '', 30),
   });
   await notify('client', 'milestone', `Milestone “${title}” was updated.`, `/portal/milestones`);
+  const admin2 = await requireAdmin();
+  await audit(admin2?.email || 'admin', milestone.status === 'complete' ? 'milestone.completed' : 'milestone.updated', title);
   return { ok: true };
 }
 
@@ -332,6 +360,92 @@ export async function sendStudioMessage(projectId: string, body: string): Promis
   const clean = sanitize(body, 2000);
   if (clean.length < 2) return { ok: false, error: 'Message is empty' };
   await addProjectMessage(projectId, 'studio', 'Kiln Studio', clean);
+  return { ok: true };
+}
+
+// ================= ADMIN — PROJECT OPERATIONS =================
+
+export async function publishProjectUpdateAction(projectId: string, title: string, note: string): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return UNAUTHORIZED;
+  const project = await getProject(projectId);
+  if (!project) return { ok: false, error: 'Project not found' };
+  const cleanTitle = sanitize(title, 120);
+  const cleanNote = sanitize(note, 1500);
+  if (!cleanTitle) return { ok: false, error: 'Give the update a short title' };
+  if (cleanNote.length < 10) return { ok: false, error: 'Add a bit more detail' };
+  const update: ProjectUpdate = { id: crypto.randomUUID(), at: new Date().toISOString(), title: cleanTitle, note: cleanNote };
+  project.updates.unshift(update);
+  await updateProject(projectId, { latestUpdate: { at: update.at, note: cleanNote } });
+  await audit(admin.email, 'project.update_published', project.name, undefined, cleanTitle);
+  await notify('client', 'update', `New update on ${project.name}: ${cleanTitle}`, `/portal/projects/${projectId}`);
+  return { ok: true };
+}
+
+export async function setActionRequiredAction(projectId: string, text: string | null): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return UNAUTHORIZED;
+  const project = await getProject(projectId);
+  if (!project) return { ok: false, error: 'Project not found' };
+  if (text) {
+    const clean = sanitize(text, 300);
+    if (!clean) return { ok: false, error: 'Describe what is needed' };
+    project.actionRequired = { text: clean, at: new Date().toISOString() };
+    await audit(admin.email, 'project.action_required_set', project.name, undefined, clean);
+    await notify('client', 'update', `Action required on ${project.name}: ${clean}`, `/portal/projects/${projectId}`);
+  } else {
+    project.actionRequired = null;
+    await audit(admin.email, 'project.action_required_cleared', project.name);
+  }
+  await persistProject(project);
+  return { ok: true };
+}
+
+/** Persist a fully-loaded project object (updates/approvals/actionRequired live on the object). */
+async function persistProject(project: import('./store').Project): Promise<void> {
+  await saveProjectRecord(project);
+}
+
+export async function approveProjectAction(projectId: string, label: string, comment: string): Promise<ActionResult> {
+  const session = await requireClient();
+  if (!session) return UNAUTHORIZED;
+  const project = await getProject(projectId);
+  if (!project || (session.clientId && project.clientId !== session.clientId)) return UNAUTHORIZED;
+  const cleanLabel = sanitize(label, 200);
+  if (!cleanLabel) return { ok: false, error: 'Approval label is required' };
+  const approval: Approval = { id: crypto.randomUUID(), kind: 'client-approval', label: cleanLabel, approvedBy: session.name || session.email, approvedAt: new Date().toISOString(), comment: sanitize(comment, 1000) };
+  project.approvals.unshift(approval);
+  if (project.actionRequired && project.actionRequired.text.toLowerCase().includes(cleanLabel.toLowerCase())) {
+    project.actionRequired = null;
+  }
+  await persistProject(project);
+  await audit(session.email || 'client', 'project.approved', `${project.name}: ${cleanLabel}`);
+  await notify('admin', 'update', `${session.name || 'Client'} approved “${cleanLabel}” on ${project.name}`, `/admin/projects/${projectId}`);
+  return { ok: true };
+}
+
+export async function inviteClientAction(clientId: string): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return UNAUTHORIZED;
+  const clients = await listClients();
+  const client = clients.find((c) => c.id === clientId);
+  if (!client || !client.email) return { ok: false, error: 'This client has no email on record' };
+  const token = await createPortalInvite(client.email, client.contactName || client.company, clientId);
+  if (!token) return { ok: false, error: 'Could not create invite' };
+  const baseUrl = process.env.BASE_URL || '';
+  await sendMail(client.email, 'Your project portal is ready',
+    `Hi ${client.contactName || 'there'},\n\nYour client portal is ready. Set your password and sign in here:\n${baseUrl}/portal/reset?token=${token}\n\n— Kiln Technology Studio`);
+  await audit(admin.email, 'client.invited', client.company);
+  return { ok: true, token };
+}
+
+export async function archiveLeadAction(id: string): Promise<ActionResult> {
+  const admin = await requireAdmin();
+  if (!admin) return UNAUTHORIZED;
+  const lead = (await listLeads()).find((l) => l.id === id);
+  if (!lead) return { ok: false, error: 'Lead not found' };
+  await updateLead(id, { archived: !lead.archived });
+  await audit(admin.email, lead.archived ? 'lead.unarchived' : 'lead.archived', lead.reference);
   return { ok: true };
 }
 

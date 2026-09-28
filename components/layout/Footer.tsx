@@ -103,7 +103,7 @@ export default async function Footer() {
           <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/privacy" className="text-[12.5px] text-faint transition-colors hover:text-ink">Privacy</Link>
             <Link href="/terms" className="text-[12.5px] text-faint transition-colors hover:text-ink">Terms</Link>
-            <Link href="/privacy#cookies" className="text-[12.5px] text-faint transition-colors hover:text-ink">Cookies</Link>
+            <Link href="/cookies" className="text-[12.5px] text-faint transition-colors hover:text-ink">Cookies</Link>
             <Link href="/accessibility" className="text-[12.5px] text-faint transition-colors hover:text-ink">Accessibility</Link>
           </nav>
           {site.socials.length > 0 && (
