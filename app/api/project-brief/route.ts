@@ -1,0 +1,58 @@
+import { apiOk, apiErr, clientIp } from '@/lib/api';
+import { rateLimit } from '@/lib/rate-limit';
+import { createLead, sendMail } from '@/lib/store';
+import { makeRef } from '@/lib/utils';
+import { sanitize } from '@/lib/validate';
+import { LeadSchema } from '@/lib/leadSchema';
+
+export async function POST(request: Request) {
+  const ip = await clientIp();
+  if (!rateLimit(`api-brief:${ip}`, 6, 10 * 60_000)) return apiErr('Rate limit exceeded. Try again shortly.', 429);
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return apiErr('Invalid JSON body.', 400);
+  }
+
+  const parsed = LeadSchema.safeParse(body);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0];
+    return apiErr(`${first.path.join('.') || 'request'}: ${first.message}`, 422);
+  }
+
+  const data = parsed.data;
+  const reference = makeRef('PB');
+  const lead = await createLead({
+    reference,
+    source: 'api',
+    kind: 'project-brief',
+    projectTypes: data.projectTypes.map((t) => sanitize(t, 80)),
+    objective: sanitize(data.objective, 3000),
+    existingAssets: data.existingAssets.map((a) => sanitize(a, 80)),
+    timeline: sanitize(data.timeline, 40),
+    budgetRange: sanitize(data.budgetRange, 40),
+    currency: data.currency,
+    companyName: sanitize(data.companyName, 160),
+    website: sanitize(data.website, 300),
+    industry: sanitize(data.industry, 80),
+    country: sanitize(data.country, 80),
+    contactName: sanitize(data.contactName, 120),
+    email: sanitize(data.email, 200),
+    phone: sanitize(data.phone, 40),
+    whatsapp: sanitize(data.whatsapp, 40),
+    preferredChannel: sanitize(data.preferredChannel, 40),
+    sourceUrl: sanitize(data.sourceUrl || '', 500),
+    utm: {
+      source: sanitize(data.utm?.source || '', 100),
+      medium: sanitize(data.utm?.medium || '', 100),
+      campaign: sanitize(data.utm?.campaign || '', 100),
+    },
+  });
+
+  await sendMail(lead.email, `We received your project brief (${reference})`,
+    `Hi ${lead.contactName},\n\nThanks for sending this over — your project brief is with our team.\nReference: ${reference}\n\nWe'll reply within one business day.\n\n— Kiln Technology Studio`);
+
+  return apiOk({ id: lead.id, reference, status: lead.status, createdAt: lead.createdAt }, 201);
+}
