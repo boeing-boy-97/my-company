@@ -32,7 +32,7 @@ export default function ProcessPage() {
               <Reveal key={stage.num} as="li">
                 <div id={`stage-${stage.num}`} className="grid scroll-mt-28 gap-8 md:grid-cols-2 md:gap-16">                  <div>
                     <div className="flex items-center gap-4">
-                      <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface font-mono text-[13px] text-accent shadow-[0_10px_30px_-16px_rgba(23,25,30,0.3)]">
+                      <span className="stage-num flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface font-mono text-[13px] text-accent shadow-[0_10px_30px_-16px_rgba(23,25,30,0.3)]">
                         {stage.num}
                       </span>
                       <h2 className="display-tight font-display text-[clamp(1.6rem,3vw,2.4rem)] font-semibold tracking-tight text-ink">{stage.name}</h2>

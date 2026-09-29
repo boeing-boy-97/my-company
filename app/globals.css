@@ -356,3 +356,65 @@ html.kiln-cursor .kiln-ring.is-press { filter: none; opacity: 0.6; }
 
 /* Cursor + parallax never affect selection or focus-visible */
 html.kiln-cursor ::selection { cursor: auto; }
+
+/* ── Interaction layer (R10): trail, progress, preview, contextual cursor labels ── */
+@media (prefers-reduced-motion: reduce) {
+  .kiln-trail,
+  .kiln-progress { display: none !important; }
+}
+
+/* Cursor states carry labels only where context demands (view/open/explore/start) */
+.kiln-ring[data-mode="open"],
+.kiln-ring[data-mode="explore"],
+.kiln-ring[data-mode="start"] {
+  border-color: transparent;
+  background: #fff;
+}
+.kiln-ring[data-mode="open"] .kiln-ring-label,
+.kiln-ring[data-mode="explore"] .kiln-ring-label,
+.kiln-ring[data-mode="start"] .kiln-ring-label {
+  opacity: 1;
+}
+
+/* Hover preview card — springs in behind the pointer, never steals clicks */
+.kiln-preview {
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: opacity 0.18s ease-out;
+}
+.kiln-preview.is-on { opacity: 1; }
+.kiln-preview > div {
+  transform: scale(0.96);
+  transition: transform 0.24s cubic-bezier(0.22, 0.61, 0.21, 1);
+}
+.kiln-preview.is-on > div { transform: scale(1); }
+
+/* Reveal variant C — image/feature scale settle */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.985);
+}
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.21, 1) var(--reveal-delay, 0ms),
+    transform 0.6s cubic-bezier(0.22, 0.61, 0.21, 1) var(--reveal-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-scale { opacity: 1; transform: none; }
+}
+
+/* Approach stage numbers activate as the step reveals */
+.stage-num {
+  transition: border-color 0.5s ease 0.15s, box-shadow 0.5s ease 0.15s, color 0.5s ease 0.15s;
+}
+.reveal.is-visible .stage-num {
+  border-color: rgba(228, 87, 46, 0.55);
+  box-shadow: 0 0 0 4px rgba(228, 87, 46, 0.07), 0 10px 30px -16px rgba(23, 25, 30, 0.3);
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-num { transition: none; }
+}
+
+/* Field focus gets a soft settle */
+.field { transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }

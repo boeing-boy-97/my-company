@@ -43,8 +43,13 @@ export default function Header() {
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    if (open) window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', onKey);
     };
   }, [open]);
 
@@ -70,6 +75,7 @@ export default function Header() {
               {/* Services dropdown */}
               <div className="group relative">
                 <button
+                  data-cursor="open"
                   className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors ${
                     isActive('/services') ? 'text-ink' : 'text-soft hover:text-ink'
                   }`}
@@ -150,6 +156,7 @@ export default function Header() {
             <button
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
+              data-cursor="open"
               aria-label={open ? 'Close menu' : 'Open menu'}
               className="relative z-[120] flex h-10 w-10 items-center justify-center rounded-full lg:hidden"
             >

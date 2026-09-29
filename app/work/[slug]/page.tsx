@@ -154,7 +154,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
                 <ul className="mt-4 divide-y divide-linedark rounded-2xl border border-line bg-surface">
                   {related.map((r) => (
                     <li key={r.slug}>
-                      <Link data-cursor="view" href={`/work/${r.slug}`} className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-paper">
+                      <Link data-cursor="view" data-preview-title={r.title} data-preview-kind={r.category} href={`/work/${r.slug}`} className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-paper">
                         <span>
                           <span className="block text-[14px] font-medium text-ink">{r.title}</span>
                           <span className="mt-0.5 block text-[12px] text-faint">{r.industry} · {r.category}</span>
@@ -183,7 +183,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           const idx = caseStudies.findIndex((c) => c.slug === cs.slug);
           const next = caseStudies[(idx + 1) % caseStudies.length];
           return (
-            <Link data-cursor="view" href={`/work/${next.slug}`} className="group mx-auto flex max-w-shell items-center justify-between gap-6 px-6 py-14">
+            <Link data-cursor="view" data-preview-title={next.title} data-preview-kind={next.category} href={`/work/${next.slug}`} className="group mx-auto flex max-w-shell items-center justify-between gap-6 px-6 py-14">
               <div>
                 <p className="label-tech">Next case</p>
                 <p className="display-tight mt-2 font-display text-[clamp(1.4rem,3vw,2.2rem)] font-semibold tracking-tight text-ink transition-colors group-hover:text-accentdeep">{next.title}</p>

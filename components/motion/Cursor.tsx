@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { subscribePointer } from '@/lib/motion/engine';
 
 /**
  * Active-Theory-style dual cursor, re-imagined for a light editorial site.
@@ -39,21 +40,15 @@ export default function Cursor() {
     let targetScale = 1;
     let mode = '';
 
-    const onMove = (e: MouseEvent) => {
-      mx = e.clientX;
-      my = e.clientY;
-      d.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
-      if (!running) {
-        running = true;
-        raf = requestAnimationFrame(loop);
-      }
-    };
+    const LABELS: Record<string, string> = { view: 'View', open: 'Open', explore: 'Explore', start: 'Start' };
+    const label = r.querySelector<HTMLElement>('.kiln-ring-label');
 
     const setMode = (next: string) => {
       if (mode === next) return;
       mode = next;
       r.dataset.mode = next || '';
-      targetScale = next === 'view' ? 2.05 : next === 'drag' ? 1.5 : next === 'hover' ? 1.55 : 1;
+      if (label) label.textContent = LABELS[next] ?? 'View';
+      targetScale = LABELS[next] ? 2.05 : next === 'drag' ? 1.5 : next === 'hover' ? 1.55 : 1;
     };
 
     const onOver = (e: MouseEvent) => {
@@ -93,15 +88,26 @@ export default function Cursor() {
       r.style.opacity = '1';
     };
 
-    window.addEventListener('mousemove', onMove, { passive: true });
+    const onMove = (x: number, y: number) => {
+      mx = x;
+      my = y;
+      d.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+      if (!running) {
+        running = true;
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
     window.addEventListener('mouseover', onOver, { passive: true });
     window.addEventListener('mousedown', down);
     window.addEventListener('mouseup', up);
     document.addEventListener('mouseleave', leave);
     document.addEventListener('mouseenter', enter);
+    const unsubPointer = subscribePointer(onMove);
+
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener('mousemove', onMove);
+      unsubPointer();
       window.removeEventListener('mouseover', onOver);
       window.removeEventListener('mousedown', down);
       window.removeEventListener('mouseup', up);

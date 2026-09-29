@@ -46,7 +46,9 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
           <Link
             href={`/work/${feat.slug}`}
             data-cursor="view"
-            className="group mt-12 grid items-center gap-10 rounded-2xl border border-line bg-surface p-6 transition-all duration-500 hover:border-ink/20 hover:shadow-[0_40px_80px_-45px_rgba(13,14,17,0.45)] lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 md:p-8"
+            data-preview-title={feat.title}
+            data-preview-kind={feat.category}
+            className="group mt-12 grid animate-fadeswap items-center gap-10 rounded-2xl border border-line bg-surface p-6 transition-all duration-500 hover:border-ink/20 hover:shadow-[0_40px_80px_-45px_rgba(13,14,17,0.45)] lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 md:p-8"
           >
             <Parallax shift={12}>
               <CaseVisual variant={feat.visual} className="transition-transform duration-500 ease-out group-hover:scale-[1.01]" />
@@ -84,6 +86,8 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
               key={cs.slug}
               href={`/work/${cs.slug}`}
               data-cursor="view"
+              data-preview-title={cs.title}
+              data-preview-kind={cs.category}
               className={`group animate-fadeswap ${i % 2 === 1 ? 'md:translate-y-10' : ''}`}
               style={{ animationDelay: `${i * 60}ms` }}
             >

@@ -7,7 +7,7 @@ interface RevealProps {
   as?: ElementType;
   className?: string;
   id?: string;
-  variant?: 'fade' | 'wipe';
+  variant?: 'fade' | 'wipe' | 'scale';
 }
 
 /** IntersectionObserver-based scroll reveal. With JS disabled or
@@ -38,7 +38,7 @@ export default function Reveal({ children, delay = 0, as: Tag = 'div', className
   }, []);
 
   return (
-    <Tag ref={ref} id={id} className={`reveal ${variant === 'wipe' ? 'reveal-wipe' : ''} ${className}`} style={{ ['--reveal-delay' as string]: `${delay}ms` }}>
+    <Tag ref={ref} id={id} className={`reveal ${variant === 'wipe' ? 'reveal-wipe' : ''}${variant === 'scale' ? 'reveal-scale ' : ''}${className}`} style={{ ['--reveal-delay' as string]: `${delay}ms` }}>
       {children}
     </Tag>
   );

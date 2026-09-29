@@ -6,6 +6,7 @@ import SectionHeader, { TechLabel } from '@/components/ui/SectionHeader';
 import CTASection from '@/components/ui/CTASection';
 import { ArrowLink } from '@/components/ui/primitives';
 import KilnSystemCanvas from '@/components/home/KilnSystemCanvas';
+import PointerDepth from '@/components/motion/PointerDepth';
 import Parallax from '@/components/motion/Parallax';
 import TransformThesis from '@/components/home/TransformThesis';
 import CapabilityMap from '@/components/services/CapabilityMap';
@@ -75,7 +76,9 @@ export default async function HomePage() {
           </HeroChoreography>
           <Reveal delay={200} variant="wipe" className="mt-4 lg:mt-0">
             <Parallax shift={10}>
-              <KilnSystemCanvas />
+              <PointerDepth shift={7}>
+                <KilnSystemCanvas />
+              </PointerDepth>
             </Parallax>
           </Reveal>
         </div>
@@ -218,7 +221,7 @@ export default async function HomePage() {
           <div className="mt-16 space-y-20">
             {featured.map((cs, i) => (
               <Reveal key={cs.slug} variant="wipe">
-                <Link data-cursor="view" href={`/work/${cs.slug}`} className={`group grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}>
+                <Link data-cursor="view" data-preview-title={cs.title} data-preview-kind={cs.category} href={`/work/${cs.slug}`} className={`group grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 ${i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}>
                   <CaseVisual variant={cs.visual} className="transition-transform duration-500 ease-out group-hover:scale-[1.015]" />
                   <div>
                     <div className="flex items-center gap-3 font-mono text-[10.5px] uppercase tracking-tech text-paper/40">

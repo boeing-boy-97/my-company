@@ -578,3 +578,22 @@ test('footer navigation uses the new IA labels (§50)', async () => {
   assert.ok(html.includes('>Studio<'), 'Studio label present');
   assert.ok(!html.includes('>Process</Link>') && !html.includes('>About</Link>'), 'old labels retired');
 });
+
+test('interaction layer (R10): trail, progress, preview and cursor states are wired', async () => {
+  const home = await getHtml('/');
+  assert.ok(home.includes('kiln-trail'), 'cursor trail canvas mounted');
+  assert.ok(home.includes('kiln-progress'), 'scroll progress bar mounted');
+  assert.ok(home.includes('kiln-preview'), 'hover preview singleton mounted');
+  assert.ok(home.includes('data-cursor="open"'), 'menu trigger carries OPEN cursor state');
+  assert.ok(home.includes('mix-blend-difference'), 'cursor layer adapts over light and dark surfaces');
+
+  const work = await getHtml('/work');
+  const previews = (work.match(/data-preview-title/g) || []).length;
+  assert.ok(previews >= 4, `work page exposes hover previews (${previews})`);
+
+  const insights = await getHtml('/insights');
+  assert.ok(insights.includes('data-cursor="explore"'), 'featured article carries EXPLORE cursor state');
+
+  const approach = await getHtml('/approach');
+  assert.ok(approach.includes('stage-num'), 'process stages get activation visuals');
+});

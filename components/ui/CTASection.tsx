@@ -44,10 +44,12 @@ export default function CTASection({
         </Reveal>
         <Reveal delay={220}>
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Magnetic>
+            <Magnetic className="inline-flex" >
+              <span data-cursor="start" className="contents">
               <Button href={primaryHref} variant="inverse" size="lg">
                 {primaryLabel}
               </Button>
+              </span>
             </Magnetic>
             <Button href={secondaryHref} variant="ghost" size="lg" className="text-paper/80 hover:bg-paper/10 hover:text-paper">
               {secondaryLabel}

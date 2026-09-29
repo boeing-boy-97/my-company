@@ -45,7 +45,7 @@ export default async function InsightsPage() {
       <section className="border-t border-line bg-surface">
         <div className="mx-auto max-w-shell px-6 py-16 md:py-20">
           <Reveal>
-            <Link href={`/insights/${featured.slug}`} className="group block">
+            <Link href={`/insights/${featured.slug}`} data-cursor="explore" data-preview-title={featured.title} data-preview-kind={featured.category} className="group block">
               <div className="grid gap-8 rounded-3xl border border-line bg-coal p-8 text-paper transition-all duration-500 group-hover:shadow-[0_40px_80px_-40px_rgba(13,14,17,0.6)] md:p-14 lg:grid-cols-[auto_1fr] lg:items-end lg:gap-16">
                 <div>
                   <div className="flex items-center gap-3">
