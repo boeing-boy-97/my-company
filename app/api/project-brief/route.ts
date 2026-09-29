@@ -2,19 +2,27 @@ import { apiOk, apiErr, clientIp } from '@/lib/api';
 import { rateLimit } from '@/lib/rate-limit';
 import { createLead, sendMail, findRecentDuplicateBrief } from '@/lib/store';
 import { makeRef } from '@/lib/utils';
-import { sanitize } from '@/lib/validate';
+import { sanitize, honeypotTriggered } from '@/lib/validate';
+import { track } from '@/lib/analytics';
 import { LeadSchema } from '@/lib/leadSchema';
 
 export async function POST(request: Request) {
-  const ip = await clientIp();
-  if (!rateLimit(`api-brief:${ip}`, 6, 10 * 60_000)) return apiErr('Rate limit exceeded. Try again shortly.', 429);
-
   let body: unknown;
   try {
     body = await request.json();
   } catch {
     return apiErr('Invalid JSON body.', 400);
   }
+
+  // Honeypot before rate limiting: bots never consume honest visitors' budget.
+  if (honeypotTriggered((body as Record<string, unknown>)?.website_hp)) {
+    await track('spam_blocked', { form: 'api-project-brief' });
+    return apiOk({ received: true, spam: true }, 200);
+  }
+
+  const ip = await clientIp();
+  if (!rateLimit(`api-brief:${ip}`, 6, 10 * 60_000)) return apiErr('Rate limit exceeded. Try again shortly.', 429);
+
 
   const parsed = LeadSchema.safeParse(body);
   if (!parsed.success) {

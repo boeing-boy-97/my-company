@@ -22,6 +22,12 @@ export default function GlobalSearch({ index }: { index: SearchEntry[] }) {
   // open listeners: "/" key + header button event
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Command palette shortcut: ⌘K / Ctrl+K anywhere, "/" when not typing.
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpen((v) => !v);
+        return;
+      }
       if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const el = document.activeElement as HTMLElement | null;
         const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
@@ -163,8 +169,9 @@ export default function GlobalSearch({ index }: { index: SearchEntry[] }) {
           )}
         </div>
 
-        <p className="border-t border-line px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-tech text-faint">
-          {results.length > 0 ? `${results.length} result${results.length === 1 ? '' : 's'}` : 'Kiln site search'}
+        <p className="flex items-center justify-between border-t border-line px-5 py-2.5 font-mono text-[9.5px] uppercase tracking-tech text-faint">
+          <span>{results.length > 0 ? `${results.length} result${results.length === 1 ? '' : 's'}` : 'Kiln site search'}</span>
+          <span aria-hidden>⌘K / Ctrl K · Esc</span>
         </p>
       </div>
     </div>

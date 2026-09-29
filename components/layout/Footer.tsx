@@ -45,6 +45,10 @@ export default async function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.1fr]">
           <div>
             <Logo />
+        <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-tech text-soft">
+          {site.acceptingProjects && <span className="h-1.5 w-1.5 rounded-full bg-ok animate-pulsedot" aria-hidden />}
+          {site.acceptingProjects ? 'Currently accepting new projects' : 'Project capacity currently full'}
+        </p>
             <p className="mt-5 max-w-[280px] text-[14.5px] leading-relaxed text-soft">{site.tagline}</p>
             <p className="mt-3 max-w-[280px] text-[13px] text-faint">{site.altTagline}</p>
           </div>

@@ -40,3 +40,8 @@ export function sanitize(value: string, max = 5000) {
 export function sanitizeArray(values: string[], maxItems = 12, maxLen = 80) {
   return values.map((v) => sanitize(v, maxLen)).filter(Boolean).slice(0, maxItems);
 }
+
+/** True when a bot filled the invisible honeypot field. */
+export function honeypotTriggered(value: unknown): boolean {
+  return typeof value === 'string' && value.trim().length > 0;
+}

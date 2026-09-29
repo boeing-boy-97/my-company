@@ -7,6 +7,7 @@
    ============================================================ */
 
 :root {
+  --announce-h: 28px;
   --shell-max: 1200px;
   color-scheme: light;
 }
@@ -283,4 +284,15 @@ body::before {
   .marquee-track {
     animation: none;
   }
+}
+
+/* Honeypot anti-spam field — hidden from humans, readable by bots */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }

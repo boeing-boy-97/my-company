@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { TextField, TextAreaField, FieldLabel, FieldError } from '@/components/ui/Fields';
+import Honeypot from '@/components/ui/Honeypot';
 import { submitApplication } from '@/lib/actions';
 
 export default function ApplicationForm({ jobId, jobTitle }: { jobId: string; jobTitle: string }) {

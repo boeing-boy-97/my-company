@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHero from '@/components/ui/PageHero';
+import ServiceFinder from '@/components/services/ServiceFinder';
 import Reveal from '@/components/ui/Reveal';
 import CTASection from '@/components/ui/CTASection';
 import { services } from '@/content/services';
@@ -55,6 +56,11 @@ export default function ServicesPage() {
         lede="You can come to us with any size of ask — from one automation to a full product team. Each practice below links to exactly what we build, and the problems it solves."
         crumbs={[{ label: 'Home', href: '/' }, { label: 'Services' }]}
       />
+
+      {/* which service do I need? */}
+      <section className="mx-auto max-w-shell px-6 py-14 md:py-20" aria-labelledby="finder-title">
+        <ServiceFinder />
+      </section>
 
       {/* pillar rows */}
       <div className="border-t border-line">

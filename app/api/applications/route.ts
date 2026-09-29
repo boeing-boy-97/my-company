@@ -1,19 +1,20 @@
 import { apiOk, apiErr, clientIp } from '@/lib/api';
 import { rateLimit } from '@/lib/rate-limit';
 import { createApplication, writeUpload, sendMail } from '@/lib/store';
-import { sanitize } from '@/lib/validate';
+import { sanitize, honeypotTriggered } from '@/lib/validate';
+import { track } from '@/lib/analytics';
 import crypto from 'crypto';
 
 export async function POST(request: Request) {
   const ip = await clientIp();
   if (!rateLimit(`api-apply:${ip}`, 5, 10 * 60_000)) return apiErr('Rate limit exceeded. Try again shortly.', 429);
-
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
     return apiErr('Expected multipart/form-data.', 400);
   }
+
 
   const name = sanitize(String(form.get('name') || ''), 120);
   const email = sanitize(String(form.get('email') || ''), 200);

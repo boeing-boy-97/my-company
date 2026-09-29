@@ -8,7 +8,7 @@ import { headers } from 'next/headers';
 import crypto from 'crypto';
 import { redirect } from 'next/navigation';
 import { rateLimit } from './rate-limit';
-import { sanitize, sanitizeArray, vEmail, vLen, vPhone, vUrl } from './validate';
+import { sanitize, sanitizeArray, vEmail, vLen, vPhone, vUrl, honeypotTriggered } from './validate';
 import { makeRef } from './utils';
 import { track } from './analytics';
 import {
@@ -65,11 +65,19 @@ export interface ProjectBriefInput {
   preferredChannel: string;
   sourceUrl?: string;
   utm?: { source: string; medium: string; campaign: string };
+  /** Invisible anti-spam field — must stay empty. */
+  honeypot?: string;
 }
 
 export async function submitProjectBrief(input: ProjectBriefInput): Promise<ActionResult> {
   const ip = await clientIp();
   if (!rateLimit(`brief:${ip}`, 6, 10 * 60_000)) return { ok: false, error: 'Too many submissions. Please try again shortly.' };
+
+  // Honeypot: bots fill the invisible field. Pretend success, persist nothing.
+  if (honeypotTriggered(input.honeypot)) {
+    await track('spam_blocked', { form: 'project-brief' });
+    return { ok: true, ref: makeRef(), spam: true };
+  }
 
   const errors: Record<string, string> = {};
   if (!input.projectTypes?.length) errors.projectTypes = 'Pick at least one option';
@@ -136,9 +144,14 @@ function vRequiredEmail(email: string): string | null {
 
 // ================= CONTACT =================
 
-export async function submitContact(input: { name: string; email: string; topic: string; message: string }): Promise<ActionResult> {
+export async function submitContact(input: { name: string; email: string; topic: string; message: string; honeypot?: string }): Promise<ActionResult> {
   const ip = await clientIp();
   if (!rateLimit(`contact:${ip}`, 8, 10 * 60_000)) return { ok: false, error: 'Too many messages. Please try again shortly.' };
+
+  if (honeypotTriggered(input.honeypot)) {
+    await track('spam_blocked', { form: 'contact' });
+    return { ok: true, spam: true };
+  }
 
   const errors: Record<string, string> = {};
   const name = sanitize(input.name, 120);
@@ -527,6 +540,12 @@ export async function deleteProjectFileAction(fileId: string): Promise<ActionRes
 export async function submitApplication(formData: FormData): Promise<ActionResult> {
   const ip = await clientIp();
   if (!rateLimit(`apply:${ip}`, 5, 10 * 60_000)) return { ok: false, error: 'Too many applications right now — try again shortly.' };
+
+  // Honeypot: bots fill the invisible field. Pretend success, persist nothing.
+  if (honeypotTriggered(formData.get('website_hp'))) {
+    await track('spam_blocked', { form: 'application' });
+    return { ok: true, spam: true };
+  }
 
   const errors: Record<string, string> = {};
   const name = sanitize(String(formData.get('name') || ''), 120);

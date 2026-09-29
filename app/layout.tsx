@@ -11,6 +11,7 @@ import { site } from '@/lib/site';
 import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
 import { buildSearchIndex } from '@/lib/search-index';
 import GlobalSearch from '@/components/layout/GlobalSearch';
+import AnnouncementBar from '@/components/layout/AnnouncementBar';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Inter_Tight({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd()) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
+        <AnnouncementBar />
         <Header />
         <RouteFx>{children}</RouteFx>
         <ContactTracker />

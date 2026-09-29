@@ -1,6 +1,7 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { TextField, TextAreaField, SelectField } from '@/components/ui/Fields';
+import Honeypot, { HONEYPOT_FIELD } from '@/components/ui/Honeypot';
 import { submitContact } from '@/lib/actions';
 
 export default function ContactForm() {
@@ -13,8 +14,9 @@ export default function ContactForm() {
   const [done, setDone] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  const submit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const honeypot = String(new FormData(e.currentTarget).get(HONEYPOT_FIELD) || '');
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Your name is required';
     if (!email.trim()) errs.email = 'Email is required';
@@ -24,7 +26,7 @@ export default function ContactForm() {
     if (Object.keys(errs).length) return;
 
     startTransition(async () => {
-      const res = await submitContact({ name, email, topic, message });
+      const res = await submitContact({ name, email, topic, message, honeypot });
       if (res.ok) setDone(true);
       else {
         setServerError(res.error || 'Something went wrong — please try again.');
@@ -49,6 +51,7 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={submit} noValidate className="rounded-2xl border border-line bg-surface p-7 md:p-9">
+      <Honeypot />
       <div className="grid gap-5 sm:grid-cols-2">
         <TextField id="c-name" label="Your name" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} required autoComplete="name" />
         <TextField id="c-email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required autoComplete="email" />

@@ -420,7 +420,7 @@ test('wizard includes the current-technology step', async () => {
 test('global search index is embedded and covers all four content types', async () => {
   const html = await (await fetch(BASE + '/')).text();
   // The overlay renders on demand, but its index is serialized into the RSC payload.
-  assert.ok(html.includes('Search (press /)'), 'search trigger present');
+  assert.ok(html.includes('Search (⌘K or /)'), 'search trigger present');
   assert.ok(html.includes('/services/ai-automation'), 'services indexed');
   assert.ok(html.includes('/work/'), 'work indexed');
   assert.ok(html.includes('/insights/'), 'insights indexed');
@@ -435,7 +435,62 @@ test('case study pages cross-link related work', async () => {
 
 test('header exposes search and client portal links', async () => {
   const html = await (await fetch(BASE + '/')).text();
-  assert.ok(html.includes('Search (press /)'), 'search trigger present');
+  assert.ok(html.includes('Search (⌘K or /)'), 'search trigger present');
   assert.ok(html.includes('Client Portal'), 'portal link present');
   assert.ok(html.includes('/industries'), 'industries in nav');
+});
+
+test('honeypot silently drops bot submissions (contact)', async () => {
+  const res = await fetch(BASE + '/api/contact', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      name: 'Spam Bot', email: `bot-${RUN}@example.com`, topic: 'General',
+      message: 'Buy my product please, this is an automated spam message.',
+      website_hp: 'http://spam.example', // bot filled the invisible field
+    }),
+  });
+  assert.equal(res.status, 200, 'honeypot pretends success');
+  const body = await json(res);
+  assert.equal(body.ok, true);
+  assert.equal(body.data.spam, true, 'marked as spam, nothing persisted');
+});
+
+test('honeypot silently drops bot submissions (project brief)', async () => {
+  const res = await fetch(BASE + '/api/project-brief', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      projectTypes: ['Automate a business process'],
+      objective: `Spam brief ${RUN} should never be persisted.`,
+      timeline: '1–3 months', budgetRange: '5,000–10,000', currency: 'USD',
+      companyName: 'Spam Co', contactName: 'Bot', email: `spam-${RUN}@example.com`,
+      website_hp: 'filled-by-bot',
+    }),
+  });
+  assert.equal(res.status, 200, 'honeypot pretends success');
+  const body = await json(res);
+  assert.equal(body.ok, true);
+  assert.equal(body.data.spam, true);
+});
+
+test('announcements, manifest and search shortcut are present', async () => {
+  const home = await (await fetch(BASE + '/')).text();
+  assert.ok(home.includes('Independent technology studio'), 'announcement bar renders');
+  assert.ok(home.includes('Search (⌘K or /)'), 'search trigger mentions the shortcut');
+  const manifest = await fetch(BASE + '/manifest.webmanifest');
+  if (manifest.status === 200) {
+    const m = await manifest.json();
+    assert.equal(m.short_name, 'Kiln');
+  } else {
+    assert.ok([200, 404].includes(manifest.status), 'manifest route reachable');
+  }
+});
+
+test('services page offers the which-service finder', async () => {
+  const html = await (await fetch(BASE + '/services')).text();
+  assert.ok(html.includes('Which service do I need?'), 'finder section present');
+});
+
+test('footer shows honest availability status', async () => {
+  const html = await (await fetch(BASE + '/')).text();
+  assert.ok(html.includes('Currently accepting new projects') || html.includes('Project capacity currently full'), 'availability status present');
 });

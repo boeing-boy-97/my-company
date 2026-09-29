@@ -55,7 +55,7 @@ export default function Header() {
         Skip to content
       </a>
 
-      <header className="fixed inset-x-0 top-0 z-[100]">
+      <header className="fixed inset-x-0 top-[var(--announce-h,0px)] z-[100]">
         <div className={`mx-auto flex max-w-shell items-center justify-between px-6 transition-all duration-500 ${scrolled ? 'mt-3' : 'mt-0'}`}>
           <div
             className={`flex w-full items-center justify-between rounded-full border px-5 py-3 transition-all duration-500 ${
@@ -119,8 +119,8 @@ export default function Header() {
             <div className="hidden items-center gap-2 lg:flex">
               <button
                 onClick={() => window.dispatchEvent(new Event('kiln:open-search'))}
-                aria-label="Search (press /)"
-                title="Search (press /)"
+                aria-label="Search (⌘K or /)"
+                title="Search — ⌘K / Ctrl K or /"
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-soft transition-colors hover:border-ink/30 hover:text-ink"
               >
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>

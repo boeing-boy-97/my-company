@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { OptionChip, TextAreaField, TextField, FieldLabel, FieldError, SelectField } from '@/components/ui/Fields';
 import { submitProjectBrief, trackAction, type ProjectBriefInput } from '@/lib/actions';
+import { HONEYPOT_FIELD } from '@/components/ui/Honeypot';
 
 const PROJECT_TYPES = ['Build something new', 'Automate a business process', 'Build an AI agent', 'Improve existing software', 'Build a website', 'Build a mobile application', 'Build a SaaS product', 'Integrate systems', 'Other'];
 const ASSETS = ['Idea', 'Requirements', 'Design', 'Existing website', 'Existing application', 'Existing backend', 'Existing automation', 'Nothing yet'];
@@ -96,6 +97,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
   const [phone, setPhone] = useState(saved?.phone || '');
   const [whatsapp, setWhatsapp] = useState(saved?.whatsapp || '');
   const [channel, setChannel] = useState(saved?.channel || 'Email');
+  const [honeypot, setHoneypot] = useState('');
   const [restored, setRestored] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -233,6 +235,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
       preferredChannel: channel,
       sourceUrl: utmRef.current?.sourceUrl || '',
       utm: utmRef.current?.utm,
+      honeypot,
     };
     startTransition(async () => {
       const res = await submitProjectBrief(payload);
@@ -303,6 +306,10 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
   /* ---------------- wizard ---------------- */
   return (
     <div ref={topRef} className="mx-auto max-w-[820px] scroll-mt-32">
+      <div className="hp-field" aria-hidden="true">
+        <label htmlFor={HONEYPOT_FIELD}>Leave this field empty</label>
+        <input id={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
+      </div>
       {/* progress header */}
       <div className="mb-10">
         <div className="flex items-center justify-between">

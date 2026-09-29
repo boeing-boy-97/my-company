@@ -6,6 +6,10 @@
 
 export const site = {
   name: 'Kiln',
+  /** Editable status line shown in the footer — set false when fully booked. */
+  acceptingProjects: true,
+  /** Micro announcement shown above the header. Empty string hides it. */
+  announcement: 'Independent technology studio · India → Worldwide',
   legalName: 'Kiln Technology Studio',
   descriptor: 'Technology Studio',
   tagline: 'Bring us the problem. We’ll build the technology.',
