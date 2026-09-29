@@ -17,7 +17,7 @@ export default function ScrollProgress() {
   }, []);
 
   return (
-    <div aria-hidden className="kiln-progress pointer-events-none fixed inset-x-0 top-0 z-[9996] h-[2px]">
+    <div aria-hidden className="kiln-progress fixed inset-x-0 top-0 h-[2px]">
       <span ref={bar} className="block h-full w-full origin-left bg-accent" style={{ transform: 'scaleX(0)' }} />
     </div>
   );

@@ -9,6 +9,16 @@
 :root {
   --announce-h: 28px;
   --shell-max: 1200px;
+  /* motion z ladder: system overlays live in one band, above UI, below OS */
+  --z-progress: 900;
+  --z-trail: 910;
+  --z-preview: 920;
+  --z-cue: 930;
+  --z-cursor: 940;
+  /* shared easing vocabulary — no easing sprawl */
+  --ease-micro: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-standard: cubic-bezier(0.22, 0.61, 0.21, 1);
+  --ease-smooth: cubic-bezier(0.33, 1, 0.68, 1);
   color-scheme: light;
 }
 
@@ -81,7 +91,7 @@ body::before {
   background-size: 0% 1px;
   background-position: 0 100%;
   background-repeat: no-repeat;
-  transition: background-size 0.35s cubic-bezier(0.22, 0.61, 0.21, 1);
+  transition: background-size 0.35s var(--ease-standard);
 }
 .link-underline:hover,
 .link-underline:focus-visible {
@@ -96,8 +106,8 @@ body::before {
   opacity: 0;
   transform: translateY(26px);
   transition:
-    opacity 0.8s cubic-bezier(0.22, 0.61, 0.21, 1),
-    transform 0.8s cubic-bezier(0.22, 0.61, 0.21, 1);
+    opacity 0.8s var(--ease-standard),
+    transform 0.8s var(--ease-standard);
   transition-delay: var(--reveal-delay, 0ms);
   will-change: opacity, transform;
 }
@@ -114,7 +124,7 @@ body::before {
 .mask-line > span {
   display: block;
   transform: translateY(110%);
-  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.21, 1);
+  transition: transform 0.9s var(--ease-standard);
   transition-delay: var(--reveal-delay, 0ms);
 }
 .is-in .mask-line > span,
@@ -127,7 +137,7 @@ body::before {
    ============================================================ */
 
 .route-fx {
-  animation: routeIn 0.4s cubic-bezier(0.22, 0.61, 0.21, 1) both;
+  animation: routeIn 0.4s var(--ease-standard) both;
 }
 @keyframes routeIn {
   from {
@@ -323,18 +333,18 @@ html.kiln-cursor .kiln-ring.is-press { filter: none; opacity: 0.6; }
 
 /* Label slide swap — hover only where .kiln-swap lives inside a hoverable root */
 .kiln-swap { position: relative; display: inline-block; overflow: hidden; vertical-align: bottom; }
-.kiln-swap-l { display: block; transition: transform 0.34s cubic-bezier(0.22, 0.61, 0.21, 1); }
+.kiln-swap-l { display: block; transition: transform 0.34s var(--ease-standard); }
 .kiln-swap-b { position: absolute; inset: 0; transform: translateY(110%); }
 .group:hover .kiln-swap-a, .kiln-swap-link:hover .kiln-swap-a, a:hover > .kiln-swap .kiln-swap-a, button:hover > .kiln-swap .kiln-swap-a { transform: translateY(-110%); }
 .group:hover .kiln-swap-b, .kiln-swap-link:hover .kiln-swap-b, a:hover > .kiln-swap .kiln-swap-b, button:hover > .kiln-swap .kiln-swap-b { transform: translateY(0); }
 
 /* Route cue — a 460ms hairline that draws itself along the top edge */
 .kiln-routecue {
-  position: fixed; left: 0; top: 0; z-index: 9997;
+  position: fixed; left: 0; top: 0; z-index: var(--z-cue);
   height: 2px; width: 100%;
   background: linear-gradient(90deg, #E4572E 0%, rgba(228, 87, 46, 0.35) 70%, transparent 100%);
   transform-origin: left center;
-  animation: kiln-sweep 460ms cubic-bezier(0.22, 0.61, 0.21, 1) forwards;
+  animation: kiln-sweep 460ms var(--ease-standard) forwards;
   pointer-events: none;
 }
 @keyframes kiln-sweep {
@@ -344,7 +354,7 @@ html.kiln-cursor .kiln-ring.is-press { filter: none; opacity: 0.6; }
 }
 
 /* Wipe-in variant of Reveal — media and cards unfold, text stays fade-up */
-.reveal-wipe { clip-path: inset(0 46% 0 46% round 0px); transition: clip-path 0.9s cubic-bezier(0.22, 0.61, 0.21, 1), opacity 0.5s ease; opacity: 0.001; }
+.reveal-wipe { clip-path: inset(0 46% 0 46% round 0px); transition: clip-path 0.9s var(--ease-standard), opacity 0.5s ease; opacity: 0.001; }
 .reveal-wipe.is-in { clip-path: inset(0 0% 0 0%); opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -385,7 +395,7 @@ html.kiln-cursor ::selection { cursor: auto; }
 .kiln-preview.is-on { opacity: 1; }
 .kiln-preview > div {
   transform: scale(0.96);
-  transition: transform 0.24s cubic-bezier(0.22, 0.61, 0.21, 1);
+  transition: transform 0.24s var(--ease-standard);
 }
 .kiln-preview.is-on > div { transform: scale(1); }
 
@@ -394,11 +404,11 @@ html.kiln-cursor ::selection { cursor: auto; }
   opacity: 0;
   transform: scale(0.985);
 }
-.reveal-scale.is-visible {
+.reveal-scale.is-in {
   opacity: 1;
   transform: none;
-  transition: opacity 0.6s cubic-bezier(0.22, 0.61, 0.21, 1) var(--reveal-delay, 0ms),
-    transform 0.6s cubic-bezier(0.22, 0.61, 0.21, 1) var(--reveal-delay, 0ms);
+  transition: opacity 0.6s var(--ease-standard) var(--reveal-delay, 0ms),
+    transform 0.6s var(--ease-standard) var(--reveal-delay, 0ms);
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal-scale { opacity: 1; transform: none; }
@@ -408,7 +418,7 @@ html.kiln-cursor ::selection { cursor: auto; }
 .stage-num {
   transition: border-color 0.5s ease 0.15s, box-shadow 0.5s ease 0.15s, color 0.5s ease 0.15s;
 }
-.reveal.is-visible .stage-num {
+.reveal.is-in .stage-num {
   border-color: rgba(228, 87, 46, 0.55);
   box-shadow: 0 0 0 4px rgba(228, 87, 46, 0.07), 0 10px 30px -16px rgba(23, 25, 30, 0.3);
 }
@@ -418,3 +428,97 @@ html.kiln-cursor ::selection { cursor: auto; }
 
 /* Field focus gets a soft settle */
 .field { transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+
+/* ── Interaction layer refinement (R11) ── */
+.kiln-cursor-root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-cursor);
+  pointer-events: none;
+  mix-blend-mode: difference;
+  display: none;
+}
+.kiln-trail {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-trail);
+  pointer-events: none;
+  mix-blend-mode: difference;
+  display: none;
+}
+@media (pointer: fine) and (hover: hover) and (min-width: 768px) {
+  .kiln-cursor-root,
+  .kiln-trail {
+    display: block;
+  }
+}
+.kiln-progress {
+  pointer-events: none;
+  z-index: var(--z-progress);
+}
+.kiln-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: var(--z-preview);
+  pointer-events: none;
+}
+/* magnetic: JS-smoothed while engaged, one short settle on exit */
+.magnetic { transition: none; }
+.magnetic.is-settle { transition: transform 0.4s var(--ease-standard); }
+
+/* travelling nav indicator — the line moves, never re-renders */
+.kiln-navline {
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 0;
+  border-radius: 9999px;
+  background: #e4572e;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, width;
+  transition:
+    transform 0.38s var(--ease-standard),
+    width 0.38s var(--ease-standard),
+    opacity 0.2s var(--ease-micro);
+}
+/* services mega: one surface lift + a single staggered breath on OPEN only */
+.kiln-mega { transform: translateY(6px) scale(0.995); transition: opacity 0.3s var(--ease-standard), transform 0.3s var(--ease-standard); }
+.group:hover .kiln-mega,
+.group:focus-within .kiln-mega { transform: translateY(0) scale(1); }
+.kiln-mega .mega-item {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.3s var(--ease-standard) 0ms,
+    transform 0.3s var(--ease-standard) 0ms,
+    background-color 0.18s var(--ease-micro) 0ms;
+}
+.kiln-mega:hover .mega-item,
+.kiln-mega:focus-within .mega-item,
+.group:hover .kiln-mega .mega-item,
+.group:focus-within .kiln-mega .mega-item {
+  opacity: 1;
+  transform: none;
+}
+.group:hover .kiln-mega .mega-item:nth-child(2) { transition-delay: 26ms, 26ms, 0ms; }
+.group:hover .kiln-mega .mega-item:nth-child(3) { transition-delay: 52ms, 52ms, 0ms; }
+.group:hover .kiln-mega .mega-item:nth-child(4) { transition-delay: 78ms, 78ms, 0ms; }
+.group:hover .kiln-mega .mega-item:nth-child(5) { transition-delay: 104ms, 104ms, 0ms; }
+.group:hover .kiln-mega .mega-item:nth-child(6) { transition-delay: 130ms, 130ms, 0ms; }
+@media (prefers-reduced-motion: reduce) {
+  .kiln-navline { transition: none; }
+  .kiln-mega { transform: none; transition: opacity 0.15s ease; }
+  .kiln-mega .mega-item { opacity: 1; transform: none; transition: background-color 0.15s ease; }
+}
+
+/* touch devices have no hover to lean on — press states carry the feedback */
+@media (hover: none) {
+  a:active,
+  button:active {
+    opacity: 0.82;
+    transition: opacity 0.12s var(--ease-micro);
+  }
+}

@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Logo from './Logo';
 import { navLinks, servicesMenu, site, hasRealWhatsapp } from '@/lib/site';
 import HoverSwap from '@/components/motion/HoverSwap';
@@ -29,6 +29,9 @@ export default function Header() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [navHover, setNavHover] = useState<string | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+  const navLineRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -40,6 +43,29 @@ export default function Header() {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const line = navLineRef.current;
+    if (!nav || !line) return;
+    const ids: string[] = ['/services', ...navLinks.map((l) => l.href)];
+    const activeId = ids.find((h) => pathname === h || pathname.startsWith(h + '/'));
+    const id = navHover ?? activeId ?? null;
+    const sel = id ? (nav.querySelector(`[data-navid="${CSS.escape(id)}"]`) as HTMLElement | null) : null;
+    const apply = () => {
+      if (!sel) { line.style.opacity = '0'; return; }
+      const nr = nav.getBoundingClientRect();
+      const r = sel.getBoundingClientRect();
+      const w = Math.max(14, r.width - 26);
+      line.style.width = `${w.toFixed(1)}px`;
+      line.style.transform = `translate3d(${(r.left - nr.left + (r.width - w) / 2).toFixed(1)}px, 0, 0)`;
+      line.style.opacity = '1';
+    };
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(nav);
+    return () => ro.disconnect();
+  }, [navHover, pathname]);
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
@@ -71,10 +97,12 @@ export default function Header() {
             <Logo />
 
             {/* Desktop nav */}
-            <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
+            <nav ref={navRef} aria-label="Primary" onMouseLeave={() => setNavHover(null)} className="relative hidden items-center gap-1 lg:flex">
               {/* Services dropdown */}
               <div className="group relative">
                 <button
+                  data-navid="/services"
+                  onMouseEnter={() => setNavHover('/services')}
                   data-cursor="open"
                   className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors ${
                     isActive('/services') ? 'text-ink' : 'text-soft hover:text-ink'
@@ -86,7 +114,7 @@ export default function Header() {
                     <path d="M1.5 3.5 5 7l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
-                <div className="pointer-events-none absolute left-0 top-full w-[620px] max-w-[calc(100vw-2.5rem)] pt-3 opacity-0 transition-all duration-300 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+                <div className="kiln-mega pointer-events-none absolute left-0 top-full w-[620px] max-w-[calc(100vw-2.5rem)] origin-top pt-3 opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
                   <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-20px_rgba(23,25,30,0.28)]">
                     <div className="grid grid-cols-[210px_minmax(0,1fr)]">
                       {/* left: positioning pane */}
@@ -103,7 +131,7 @@ export default function Header() {
                       {/* right: numbered services */}
                       <div className="p-2">
                         {servicesMenu.map((item) => (
-                          <Link key={item.href} href={item.href} className="group/item flex items-center gap-3.5 rounded-xl px-3.5 py-[9px] transition-colors hover:bg-paper">
+                          <Link key={item.href} href={item.href} data-cursor="link" className="mega-item group/item flex items-center gap-3.5 rounded-xl px-3.5 py-[9px] transition-colors hover:bg-paper">
                             <span className="w-5 shrink-0 font-mono text-[10px] text-faint transition-colors group-hover/item:text-accentdeep">{(item as { num?: string }).num}</span>
                             <span className="flex h-4 w-4 shrink-0 items-end gap-[2px]" aria-hidden>
                               <span className="w-[3px] rounded-sm bg-accent" style={{ height: '10px' }} />
@@ -126,12 +154,14 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  data-navid={link.href}
+                  onMouseEnter={() => setNavHover(link.href)}
                   className={`relative rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors ${isActive(link.href) ? 'text-ink' : 'text-soft hover:text-ink'}`}
                 >
                   <HoverSwap label={link.label} />
-                  {isActive(link.href) && <span className="absolute inset-x-3.5 -bottom-px h-[2px] rounded-full bg-accent" aria-hidden />}
                 </Link>
               ))}
+              <span ref={navLineRef} aria-hidden className="kiln-navline" />
             </nav>
 
             <div className="hidden items-center gap-2 lg:flex">

@@ -8,6 +8,7 @@
 // ============================================================
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 
 const BASE = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -585,7 +586,7 @@ test('interaction layer (R10): trail, progress, preview and cursor states are wi
   assert.ok(home.includes('kiln-progress'), 'scroll progress bar mounted');
   assert.ok(home.includes('kiln-preview'), 'hover preview singleton mounted');
   assert.ok(home.includes('data-cursor="open"'), 'menu trigger carries OPEN cursor state');
-  assert.ok(home.includes('mix-blend-difference'), 'cursor layer adapts over light and dark surfaces');
+  assert.ok(home.includes('kiln-cursor-root'), 'cursor layer mounted with CSS-driven blending over light and dark surfaces');
 
   const work = await getHtml('/work');
   const previews = (work.match(/data-preview-title/g) || []).length;
@@ -596,4 +597,16 @@ test('interaction layer (R10): trail, progress, preview and cursor states are wi
 
   const approach = await getHtml('/approach');
   assert.ok(approach.includes('stage-num'), 'process stages get activation visuals');
+});
+
+test('R11 refinement: navline wiring + no orphaned observer classes', async () => {
+  const home = await getHtml('/');
+  assert.ok(home.includes('kiln-navline'), 'travelling nav indicator mounted');
+  assert.ok(home.includes('data-navid'), 'nav items expose indicator anchors');
+  assert.ok(home.includes('mega-item'), 'services items stagger as one surface');
+  // regression guard: the observer adds `is-in`; no rule may target `is-visible`
+  const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
+  assert.ok(!css.includes('.is-visible'), 'no orphaned is-visible selectors');
+  assert.ok(css.includes('--z-cursor'), 'z ladder tokenized');
+  assert.ok(css.includes('--ease-standard'), 'easing vocabulary tokenized');
 });

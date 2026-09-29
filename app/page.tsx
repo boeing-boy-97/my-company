@@ -76,7 +76,7 @@ export default async function HomePage() {
           </HeroChoreography>
           <Reveal delay={200} variant="wipe" className="mt-4 lg:mt-0">
             <Parallax shift={10}>
-              <PointerDepth shift={7}>
+              <PointerDepth shift={7} ambient={1.6}>
                 <KilnSystemCanvas />
               </PointerDepth>
             </Parallax>
