@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import CaseVisual from './CaseVisual';
+import Parallax from '@/components/motion/Parallax';
 import { workFilters, type CaseStudy } from '@/content/caseStudies';
 import { EmptyState } from '@/components/ui/primitives';
 
@@ -44,9 +45,12 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
           {/* Featured — the archive opens with one large composition */}
           <Link
             href={`/work/${feat.slug}`}
+            data-cursor="view"
             className="group mt-12 grid items-center gap-10 rounded-2xl border border-line bg-surface p-6 transition-all duration-500 hover:border-ink/20 hover:shadow-[0_40px_80px_-45px_rgba(13,14,17,0.45)] lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 md:p-8"
           >
-            <CaseVisual variant={feat.visual} className="transition-transform duration-500 ease-out group-hover:scale-[1.01]" />
+            <Parallax shift={12}>
+              <CaseVisual variant={feat.visual} className="transition-transform duration-500 ease-out group-hover:scale-[1.01]" />
+            </Parallax>
             <div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-tech">
                 <span className="text-accentdeep">Featured</span>
@@ -79,6 +83,7 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
             <Link
               key={cs.slug}
               href={`/work/${cs.slug}`}
+              data-cursor="view"
               className={`group animate-fadeswap ${i % 2 === 1 ? 'md:translate-y-10' : ''}`}
               style={{ animationDelay: `${i * 60}ms` }}
             >

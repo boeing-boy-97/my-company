@@ -12,6 +12,9 @@ import { orgJsonLd, websiteJsonLd } from '@/lib/seo';
 import { buildSearchIndex } from '@/lib/search-index';
 import GlobalSearch from '@/components/layout/GlobalSearch';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
+import MotionCursor from '@/components/motion/Cursor';
+import SmoothScroll from '@/components/motion/SmoothScroll';
+import RouteCue from '@/components/motion/RouteCue';
 
 const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const display = Inter_Tight({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
@@ -46,6 +49,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd()) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
         <AnnouncementBar />
+        <SmoothScroll />
+        <MotionCursor />
+        <RouteCue />
         <Header />
         <RouteFx>{children}</RouteFx>
         <ContactTracker />

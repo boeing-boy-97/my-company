@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Logo from './Logo';
 import { navLinks, servicesMenu, site, hasRealWhatsapp } from '@/lib/site';
+import HoverSwap from '@/components/motion/HoverSwap';
 import { trackAction } from '@/lib/actions';
 
 function CtaButton() {
@@ -74,7 +75,7 @@ export default function Header() {
                   }`}
                   aria-haspopup="true"
                 >
-                  Services
+                  <HoverSwap label="Services" />
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden className="transition-transform duration-300 group-hover:rotate-180">
                     <path d="M1.5 3.5 5 7l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -121,7 +122,7 @@ export default function Header() {
                   href={link.href}
                   className={`relative rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors ${isActive(link.href) ? 'text-ink' : 'text-soft hover:text-ink'}`}
                 >
-                  {link.label}
+                  <HoverSwap label={link.label} />
                   {isActive(link.href) && <span className="absolute inset-x-3.5 -bottom-px h-[2px] rounded-full bg-accent" aria-hidden />}
                 </Link>
               ))}

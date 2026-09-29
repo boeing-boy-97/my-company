@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import HoverSwap from '@/components/motion/HoverSwap';
 
 export function ArrowLink({ href, children, className, small }: { href: string; children: React.ReactNode; className?: string; small?: boolean }) {
   return (
@@ -11,7 +12,7 @@ export function ArrowLink({ href, children, className, small }: { href: string; 
         className
       )}
     >
-      <span className="link-underline">{children}</span>
+      <span className="link-underline">{typeof children === 'string' ? <HoverSwap label={children} /> : children}</span>
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform duration-300 group-hover/link:translate-x-1">
         <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>

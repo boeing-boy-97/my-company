@@ -94,6 +94,7 @@ export default function TransformThesis() {
       <label className="mt-5 flex items-center gap-4">
         <span className="sr-only">Drag to compare: 0 is the manual before-state, 100 is the automated after-state</span>
         <input
+          data-cursor="drag"
           type="range"
           min={0}
           max={100}

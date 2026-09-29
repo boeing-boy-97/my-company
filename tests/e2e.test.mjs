@@ -547,3 +547,12 @@ test('SEO metadata on all main routes: title+description+canonical+og (§34)', a
     assert.match(html, /property="og:title"/);
   }
 });
+
+test('motion layer wiring: hover swaps, view cursors, drag slider', async () => {
+  const home = await (await fetch(BASE + '/')).text();
+  assert.ok((home.match(/kiln-swap-b/g) ?? []).length >= 12, 'footer+nav hover-swap links rendered');
+  const work = await (await fetch(BASE + '/work')).text();
+  assert.ok(work.includes('data-cursor="view"'), 'work cards opt into the VIEW cursor');
+  assert.ok(home.includes('data-cursor="drag"'), 'transformation slider declares the drag cursor');
+  assert.ok(home.includes('reveal-wipe'), 'hero canvas uses the wipe reveal');
+});
