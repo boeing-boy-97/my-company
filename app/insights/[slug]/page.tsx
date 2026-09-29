@@ -109,8 +109,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <p className="label-tech text-paper/45">Put this into practice</p>
             <p className="display-tight mt-3 font-display text-[clamp(1.3rem,2.4vw,1.8rem)] font-semibold leading-[1.2]">Have a version of this problem in your business?</p>
             <div className="mt-6 flex flex-wrap gap-4">
-              <Button href="/start-project" variant="inverse">Start a Project</Button>
-              <Button href="/contact" variant="ghost" className="text-paper/75 hover:bg-paper/10 hover:text-paper">Talk to Our Team</Button>
+              <Button href="/contact" variant="inverse">Talk through the problem</Button>
+              <Button href="/start-project" variant="ghost" className="text-paper/75 hover:bg-paper/10 hover:text-paper">Start a project</Button>
             </div>
           </div>
         </article>

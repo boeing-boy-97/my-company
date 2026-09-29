@@ -5,7 +5,9 @@ import Reveal from '@/components/ui/Reveal';
 import SectionHeader, { TechLabel } from '@/components/ui/SectionHeader';
 import CTASection from '@/components/ui/CTASection';
 import { ArrowLink } from '@/components/ui/primitives';
-import HeroVisual from '@/components/home/HeroVisual';
+import KilnSystemCanvas from '@/components/home/KilnSystemCanvas';
+import TransformThesis from '@/components/home/TransformThesis';
+import CapabilityMap from '@/components/services/CapabilityMap';
 import ProblemSolution from '@/components/home/ProblemSolution';
 import BuildAnything from '@/components/home/BuildAnything';
 import WorldClock from '@/components/home/WorldClock';
@@ -113,74 +115,55 @@ export default async function HomePage() {
             </Reveal>
           </HeroChoreography>
           <Reveal delay={200} className="mt-4 lg:mt-0">
-            <HeroVisual />
+            <KilnSystemCanvas />
           </Reveal>
         </div>
       </section>
 
-      {/* ============================== SCROLL STATEMENT ============================== */}
-      <section className="border-t border-line bg-surface">
-        <div className="mx-auto max-w-shell px-6 py-24 md:py-36">
-          <Reveal>
-            <TechLabel>The starting point</TechLabel>
-          </Reveal>
-          <div className="mt-8 max-w-[980px]">
-            <Reveal delay={60}>
-              <p className="display-tight font-display text-[clamp(1.7rem,4.6vw,3.4rem)] font-semibold leading-[1.14] text-ink">Your business has a problem.</p>
-            </Reveal>
-            <Reveal delay={140}>
-              <p className="display-tight mt-2 font-display text-[clamp(1.7rem,4.6vw,3.4rem)] font-semibold leading-[1.14] text-ink/45">You don’t need another developer.</p>
-            </Reveal>
-            <Reveal delay={220}>
-              <p className="display-tight mt-2 font-display text-[clamp(1.7rem,4.6vw,3.4rem)] font-semibold leading-[1.14] text-ink">
-                You need the right <span className="text-accent">system.</span>
-              </p>
-            </Reveal>
-          </div>
-          <Reveal delay={300}>
-            <div className="mt-12 flex flex-col gap-6 border-l-2 border-accent pl-6 md:flex-row md:items-center md:justify-between md:gap-12">
-              <p className="max-w-[520px] text-[17px] leading-[1.65] text-soft">We turn business problems into working technology. Bring us the problem — the repetitive work, the broken process, the idea that hasn’t been built — and we’ll design, build and run the system behind it.</p>
-              <ArrowLink href="/process" className="shrink-0">
-                How we work
-              </ArrowLink>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ============================== SERVICES ============================== */}
-      <section className="border-t border-line" aria-labelledby="services-title">
+      {/* ============================== TECH ECOSYSTEM ============================== */}
+      <section className="border-t border-line" aria-labelledby="tech-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
-          <div className="flex flex-wrap items-end justify-between gap-8">
-            <SectionHeader index="01" label="What we do" title={<span id="services-title">Six ways we turn problems into systems.</span>} />
-            <Reveal delay={200}>
-              <ArrowLink href="/services">All services</ArrowLink>
-            </Reveal>
-          </div>
-
-          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-            {services.map((s, i) => (
-              <Reveal key={s.slug} delay={(i % 3) * 90}>
-                <Link
-                  href={`/services/${s.slug}`}
-                  className="group flex h-full flex-col bg-surface p-8 transition-colors duration-300 hover:bg-paper md:p-9"
-                  aria-label={`${s.title} — explore`}
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="font-mono text-[12px] text-faint transition-colors duration-300 group-hover:text-accent">{s.num}</span>
-                    <span className="text-soft transition-colors duration-300 group-hover:text-accent">{serviceIcons[s.icon]}</span>
+          <SectionHeader
+            index="01"
+            label="Capability"
+            title={<span id="tech-title">One ecosystem. <span className="text-soft">Chosen per problem.</span></span>}
+            lede="We are not loyal to a stack — we’re loyal to the outcome. These are the systems we reach for, matched to what the problem actually needs."
+          />
+          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2 lg:grid-cols-4">
+            {techStack.map((cat, i) => (
+              <Reveal key={cat.name} delay={i * 90} className="h-full">
+                <div className="group h-full bg-surface p-8 transition-colors duration-300 hover:bg-paper">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display text-[18px] font-semibold text-ink">{cat.name}</h3>
+                    <span className="font-mono text-[9.5px] uppercase tracking-tech text-faint transition-colors group-hover:text-accent">{cat.code}</span>
                   </div>
-                  <h3 className="display-tight mt-10 font-display text-[21px] font-semibold tracking-tight text-ink">{s.title}</h3>
-                  <p className="mt-3 flex-1 text-[14.5px] leading-[1.65] text-soft">{s.short}</p>
-                  <span className="mt-8 inline-flex items-center gap-2 text-[13.5px] font-medium text-ink">
-                    <span className="link-underline">Explore</span>
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
-                      <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                </Link>
+                  <p className="mt-2 text-[13px] leading-relaxed text-faint">{cat.description}</p>
+                  <ul className="mt-6 space-y-2 border-t border-linedark pt-5">
+                    {cat.items.map((item) => (
+                      <li key={item} className="flex items-center gap-2.5 text-[13.5px] text-soft transition-colors duration-200 hover:text-ink">
+                        <span className="h-[3px] w-[3px] rounded-full bg-accent/70" aria-hidden />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+{/* ============================== THESIS — TRANSFORMATION ============================== */}
+      <section className="border-t border-line bg-surface" aria-labelledby="thesis-title">
+        <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
+          <SectionHeader
+            index="02"
+            label="The thesis"
+            title={<span id="thesis-title">Most businesses don’t need more software. <span className="text-soft">They need a better system.</span></span>}
+            lede="Drag the control. On the left is how work runs in most companies today; on the right is what a designed system does with the same people and the same data."
+          />
+          <div className="mt-12">
+            <TransformThesis />
           </div>
         </div>
       </section>
@@ -189,13 +172,29 @@ export default async function HomePage() {
       <section className="border-t border-line bg-paper" aria-labelledby="problem-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
           <SectionHeader
-            index="02"
+            index="03"
             label="Problem → System → Outcome"
             title={<span id="problem-title">Start with the problem. <span className="text-soft">We’ll match the technology.</span></span>}
             lede="Most businesses don’t need “AI” or “an app” — they need a specific problem solved. Pick the one that sounds familiar."
           />
           <div className="mt-14">
             <ProblemSolution />
+          </div>
+        </div>
+      </section>
+
+      {/* ============================== SERVICES ============================== */}
+      <section className="border-t border-line" aria-labelledby="services-title">
+        <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
+          <div className="flex flex-wrap items-end justify-between gap-8">
+            <SectionHeader index="04" label="What we do" title={<span id="services-title">One capability map. Pick where you are.</span>} />
+            <Reveal delay={200}>
+              <ArrowLink href="/services">All services</ArrowLink>
+            </Reveal>
+          </div>
+
+          <div className="mt-12">
+            <CapabilityMap />
           </div>
         </div>
       </section>
@@ -234,7 +233,7 @@ export default async function HomePage() {
               <Reveal>
                 <span className="label-tech inline-flex items-center gap-2.5 text-paper/45">
                   <span className="h-[5px] w-[5px] bg-accent" aria-hidden />
-                  Selected work <span className="text-paper/25">( 03 )</span>
+                  Selected work <span className="text-paper/25">( 05 )</span>
                 </span>
               </Reveal>
               <Reveal delay={80}>
@@ -291,45 +290,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ============================== TECH ECOSYSTEM ============================== */}
-      <section className="border-t border-line" aria-labelledby="tech-title">
-        <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
-          <SectionHeader
-            index="04"
-            label="Capability"
-            title={<span id="tech-title">One ecosystem. <span className="text-soft">Chosen per problem.</span></span>}
-            lede="We are not loyal to a stack — we’re loyal to the outcome. These are the systems we reach for, matched to what the problem actually needs."
-          />
-          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2 lg:grid-cols-4">
-            {techStack.map((cat, i) => (
-              <Reveal key={cat.name} delay={i * 90} className="h-full">
-                <div className="group h-full bg-surface p-8 transition-colors duration-300 hover:bg-paper">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-display text-[18px] font-semibold text-ink">{cat.name}</h3>
-                    <span className="font-mono text-[9.5px] uppercase tracking-tech text-faint transition-colors group-hover:text-accent">{cat.code}</span>
-                  </div>
-                  <p className="mt-2 text-[13px] leading-relaxed text-faint">{cat.description}</p>
-                  <ul className="mt-6 space-y-2 border-t border-linedark pt-5">
-                    {cat.items.map((item) => (
-                      <li key={item} className="flex items-center gap-2.5 text-[13.5px] text-soft transition-colors duration-200 hover:text-ink">
-                        <span className="h-[3px] w-[3px] rounded-full bg-accent/70" aria-hidden />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ============================== PROCESS ============================== */}
       <section className="border-t border-line bg-surface" aria-labelledby="process-title">
         <div className="mx-auto grid max-w-shell gap-14 px-6 py-24 md:py-32 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
           <div className="lg:sticky lg:top-32 lg:self-start">
             <SectionHeader
-              index="05"
+              index="06"
               label="Process"
               title={<span id="process-title">From problem to production.</span>}
               lede="A single accountable process, whether the deliverable is an automation, an agent or a full product. No phase is skipped, and every phase produces something you can see."
@@ -342,7 +308,7 @@ export default async function HomePage() {
       {/* ============================== WHY US ============================== */}
       <section className="border-t border-line" aria-labelledby="why-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
-          <SectionHeader index="06" label="Why clients work with us" title={<span id="why-title">Positions, not promises.</span>} />
+          <SectionHeader index="07" label="Why clients work with us" title={<span id="why-title">Positions, not promises.</span>} />
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
             {[
               { t: 'Business-first engineering', d: 'We solve the underlying problem, not just the requested feature. Sometimes the right build is smaller than the one you asked for — we’ll tell you.' },
@@ -381,7 +347,7 @@ export default async function HomePage() {
             </svg>
             <div className="relative">
               <SectionHeader
-                index="07"
+                index="08"
                 label="Global delivery"
                 title={<span id="global-title">Built in India.<br className="md:hidden" /> Built for the world.</span>}
                 lede="Working with ambitious teams across borders and time zones. Async by default, available in your working hours, precise about handovers."
@@ -399,7 +365,7 @@ export default async function HomePage() {
       {/* ============================== TESTIMONIALS ============================== */}
       <section className="border-t border-line" aria-labelledby="voices-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-28">
-          <SectionHeader index="08" label="Client voices" title={<span id="voices-title">In their words.</span>} />
+          <SectionHeader index="09" label="Client voices" title={<span id="voices-title">In their words.</span>} />
           <div className="mt-12">
             {publishedTestimonials.length > 0 ? (
               <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">

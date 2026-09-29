@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   ...pageSeo({
     title: 'Process — From problem to production',
     description: 'Eight stages from discovery to support, each with real deliverables and a decision gate. See exactly how a project moves from a described problem to a running system.',
-    path: '/process',
+    path: '/approach',
   }),
 };
 
@@ -18,10 +18,10 @@ export default function ProcessPage() {
   return (
     <main>
       <PageHero
-        label="Process"
+        label="Approach"
         title="From problem to production, in eight honest stages."
         lede="Every engagement — automation, agent, or full product — moves through this sequence. Each stage produces something you can see, question and approve before the next one starts."
-        crumbs={[{ label: 'Home', href: '/' }, { label: 'Process' }]}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Approach' }]}
       />
 
       <section className="border-t border-line">

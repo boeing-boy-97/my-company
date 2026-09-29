@@ -79,26 +79,37 @@ export default function Header() {
                     <path d="M1.5 3.5 5 7l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
-                <div className="pointer-events-none absolute left-1/2 top-full w-[400px] -translate-x-1/2 pt-3 opacity-0 transition-all duration-300 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
-                  <div className="overflow-hidden rounded-2xl border border-line bg-surface p-2 shadow-[0_24px_60px_-20px_rgba(23,25,30,0.28)]">
-                    {servicesMenu.map((item) => (
-                      <Link key={item.href} href={item.href} className="flex items-baseline justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-paper">
-                        <span>
-                          <span className="block text-[14px] font-medium text-ink">{item.label}</span>
-                          <span className="mt-0.5 block text-[12.5px] text-soft">{item.note}</span>
-                        </span>
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 self-center text-faint">
-                          <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </Link>
-                    ))}
-                    <div className="mt-1 border-t border-line pt-1">
-                      <Link href="/services" className="flex items-center justify-between gap-4 rounded-xl px-4 py-3 transition-colors hover:bg-paper">
-                        <span className="text-[13.5px] font-medium text-accent">All services</span>
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-accent">
-                          <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </Link>
+                <div className="pointer-events-none absolute left-1/2 top-full w-[620px] -translate-x-1/2 pt-3 opacity-0 transition-all duration-300 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+                  <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-20px_rgba(23,25,30,0.28)]">
+                    <div className="grid grid-cols-[210px_minmax(0,1fr)]">
+                      {/* left: positioning pane */}
+                      <div className="flex flex-col justify-between border-r border-line bg-paper p-5">
+                        <div>
+                          <p className="label-tech">How we can help</p>
+                          <p className="mt-3 text-[13px] leading-relaxed text-soft">Six practices, one team. Pick the closest — we’ll map it to the problem on your call.</p>
+                        </div>
+                        <Link href="/services" className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent transition-colors hover:text-accentdeep">
+                          Compare all six
+                          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        </Link>
+                      </div>
+                      {/* right: numbered services */}
+                      <div className="p-2">
+                        {servicesMenu.map((item) => (
+                          <Link key={item.href} href={item.href} className="group/item flex items-center gap-3.5 rounded-xl px-3.5 py-[9px] transition-colors hover:bg-paper">
+                            <span className="w-5 shrink-0 font-mono text-[10px] text-faint transition-colors group-hover/item:text-accentdeep">{(item as { num?: string }).num}</span>
+                            <span className="flex h-4 w-4 shrink-0 items-end gap-[2px]" aria-hidden>
+                              <span className="w-[3px] rounded-sm bg-accent" style={{ height: '10px' }} />
+                              <span className="w-[3px] rounded-sm bg-line" style={{ height: '6px', marginLeft: '1.5px' }} />
+                              <span className="w-[3px] rounded-sm bg-line" style={{ height: '3px', marginLeft: '1.5px' }} />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-[13.5px] font-medium text-ink">{item.label}</span>
+                              <span className="mt-0.5 block truncate text-[11.5px] text-soft">{item.note}</span>
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

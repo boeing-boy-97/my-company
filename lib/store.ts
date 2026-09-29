@@ -39,6 +39,8 @@ export interface Lead {
   objective: string;
   existingAssets: string[];
   currentTech?: string;
+  users?: string;
+  success?: string;
   timeline: string;
   budgetRange: string;
   currency: string;
@@ -63,7 +65,7 @@ export interface Lead {
   updatedAt: string;
 }
 
-export interface ContactSubmission { id: string; name: string; email: string; topic: string; message: string; status: string; createdAt: string }
+export interface ContactSubmission { id: string; name: string; email: string; topic: string; message: string; company?: string; website?: string; budget?: string; timeline?: string; context?: string; status: string; createdAt: string }
 
 export interface Application {
   id: string; jobId: string; name: string; email: string; resumeKey: string;

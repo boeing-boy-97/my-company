@@ -4,10 +4,24 @@ import { TextField, TextAreaField, SelectField } from '@/components/ui/Fields';
 import Honeypot, { HONEYPOT_FIELD } from '@/components/ui/Honeypot';
 import { submitContact } from '@/lib/actions';
 
+// Per-topic follow-up: one contextual question, so the first message is already useful.
+const CONTEXT_BY_TOPIC: Record<string, { q: string; h: string }> = {
+    'A project': { q: 'What are you trying to build or fix?', h: 'One sentence about the system or problem helps us route you to the right person.' },
+    'Partnership': { q: 'What would partnering look like?', h: 'Complementary capability, region, or client overlap — whatever you have in mind.' },
+    'Careers': { q: 'Which role, and why now?', h: 'Paste a role title from the careers page if there’s one open.' },
+    'Press': { q: 'Outlet and deadline', h: 'Topic, format and timing so we can respond usefully.' },
+    'Something else': { q: 'Best-effort context', h: 'Anything that helps the right person reply.' },
+};
+
 export default function ContactForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [topic, setTopic] = useState('General enquiry');
+  const [topic, setTopic] = useState('A project');
+  const [company, setCompany] = useState('');
+  const [website, setWebsite] = useState('');
+  const [budget, setBudget] = useState('');
+  const [timeline, setTimeline] = useState('');
+  const [context, setContext] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState('');
@@ -26,7 +40,7 @@ export default function ContactForm() {
     if (Object.keys(errs).length) return;
 
     startTransition(async () => {
-      const res = await submitContact({ name, email, topic, message, honeypot });
+      const res = await submitContact({ name, email, topic, message, company, website, budget, timeline, context, honeypot });
       if (res.ok) setDone(true);
       else {
         setServerError(res.error || 'Something went wrong — please try again.');
@@ -57,14 +71,33 @@ export default function ContactForm() {
         <TextField id="c-email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} required autoComplete="email" />
       </div>
       <div className="mt-5">
+        <TextField id="c-company" label="Company" optional value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Where you work" autoComplete="organization" />
+        <TextField id="c-website" label="Company website" optional value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="yourcompany.com" error={errors.website} />
         <SelectField
           id="c-topic"
-          label="Topic"
+          label="What do you need?"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           options={['General enquiry', 'A project', 'Partnership', 'Careers', 'Press', 'Something else'].map((t) => ({ value: t, label: t }))}
         />
       </div>
+      {CONTEXT_BY_TOPIC[topic] && (
+        <div className="mt-5 rounded-xl border border-line bg-paper px-4 py-4 animate-fadeswap">
+          <p className="font-mono text-[9.5px] uppercase tracking-tech text-accentdeep">One useful detail</p>
+          <p className="mt-1 text-[13px] text-soft">{CONTEXT_BY_TOPIC[topic].h}</p>
+          <div className="mt-3">
+            <TextField id="c-context" label={CONTEXT_BY_TOPIC[topic].q} optional value={context} onChange={(e) => setContext(e.target.value)} />
+          </div>
+        </div>
+      )}
+      {(topic === 'A project' || topic === 'General enquiry') && (
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <SelectField id="c-budget" label="Budget range (rough)" value={budget} onChange={(e) => setBudget(e.target.value)}
+            options={[{ value: '', label: 'No preference' }, ...['Under $10k', '$10k – $30k', '$30k – $75k', '$75k+', 'Not sure yet'].map((t) => ({ value: t, label: t }))]} />
+          <SelectField id="c-timeline" label="Timeline (rough)" value={timeline} onChange={(e) => setTimeline(e.target.value)}
+            options={[{ value: '', label: 'No preference' }, ...['ASAP', 'This quarter', 'Next quarter', 'Exploring'].map((t) => ({ value: t, label: t }))]} />
+        </div>
+      )}
       <div className="mt-5">
         <TextAreaField id="c-message" label="Message" value={message} onChange={(e) => setMessage(e.target.value)} rows={5} error={errors.message} required placeholder="What can we help with?" />
       </div>

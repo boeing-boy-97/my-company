@@ -9,10 +9,10 @@ const cols = [
     links: [
       { label: 'AI & Automation', href: '/services/ai-automation' },
       { label: 'AI Agents', href: '/services/ai-agents' },
-      { label: 'Software', href: '/services/software' },
+      { label: 'Software', href: '/services/custom-software' },
       { label: 'Web & Mobile', href: '/services/web-mobile' },
       { label: 'AI Products', href: '/services/ai-products' },
-      { label: 'Systems & Integrations', href: '/services/integration' },
+      { label: 'Systems & Integrations', href: '/services/system-integration' },
     ],
   },
   {
@@ -20,7 +20,7 @@ const cols = [
     links: [
       { label: 'All services', href: '/services' },
       { label: 'Work', href: '/work' },
-      { label: 'Process', href: '/process' },
+      { label: 'Process', href: '/approach' },
       { label: 'Industries', href: '/industries' },
       { label: 'Insights', href: '/insights' },
     ],
@@ -28,7 +28,7 @@ const cols = [
   {
     title: 'Company',
     links: [
-      { label: 'About', href: '/about' },
+      { label: 'About', href: '/studio' },
       { label: 'Careers', href: '/careers' },
       { label: 'Contact', href: '/contact' },
       { label: 'Start a project', href: '/start-project' },
@@ -42,7 +42,16 @@ export default async function Footer() {
   return (
     <footer className="border-t border-line bg-paper">
       <div className="mx-auto max-w-shell px-6 pb-10 pt-16 md:pt-20">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.1fr]">
+        {/* editorial masthead — the footer should feel like an ending */}
+        <div className="flex flex-col gap-4 border-b border-line pb-10 md:flex-row md:items-end md:justify-between">
+          <p className="display-tight font-display text-[clamp(3.2rem,9vw,7.5rem)] font-bold leading-[0.9] tracking-[-0.03em] text-ink" aria-hidden>
+            {site.name.toUpperCase()}
+          </p>
+          <p className="max-w-[320px] pb-1 text-[14.5px] leading-relaxed text-soft md:text-right">
+            {site.tagline}
+          </p>
+        </div>
+        <div className="mt-12 grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.1fr]">
           <div>
             <Logo />
         <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-tech text-soft">

@@ -4,11 +4,11 @@
 const BASE = process.env.BASE || 'http://localhost:3000';
 
 const SEED = [
-  '/', '/services', '/work', '/industries', '/process', '/about',
+  '/', '/services', '/work', '/industries', '/approach', '/studio',
   '/insights', '/careers', '/contact', '/start-project',
   '/portal/login', '/privacy', '/terms', '/cookies', '/accessibility',
-  '/services/ai-automation', '/services/ai-agents', '/services/software',
-  '/services/web-mobile', '/services/ai-products', '/services/integration',
+  '/services/ai-automation', '/services/ai-agents', '/services/custom-software',
+  '/services/web-mobile', '/services/ai-products', '/services/system-integration',
 ];
 
 const fetched = new Map();

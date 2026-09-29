@@ -55,7 +55,7 @@ export default function HomeProcess() {
       </ol>
 
       <div className="mt-10">
-        <ArrowLink href="/process">See the full process, stage by stage</ArrowLink>
+        <ArrowLink href="/approach">See the full approach, stage by stage</ArrowLink>
       </div>
     </div>
   );

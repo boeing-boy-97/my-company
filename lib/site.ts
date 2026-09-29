@@ -73,17 +73,17 @@ export const publicSocials = site.socials.filter((s) => isConfigured(s.url));
 // Primary navigation — single source of truth for the site's route map.
 export const navLinks = [
   { label: 'Work', href: '/work' },
+  { label: 'Approach', href: '/approach' },
   { label: 'Industries', href: '/industries' },
-  { label: 'Process', href: '/process' },
-  { label: 'About', href: '/about' },
+  { label: 'Studio', href: '/studio' },
   { label: 'Insights', href: '/insights' },
 ];
 
 export const servicesMenu = [
-  { label: 'AI Automation', href: '/services/ai-automation', note: 'Remove repetitive work' },
-  { label: 'AI Agents', href: '/services/ai-agents', note: 'Voice, support, sales & internal agents' },
-  { label: 'Custom Software', href: '/services/software', note: 'Platforms, tools, SaaS, dashboards' },
-  { label: 'Web & Mobile', href: '/services/web-mobile', note: 'Websites, web apps, mobile apps' },
-  { label: 'AI Product Development', href: '/services/ai-products', note: 'Idea to production AI product' },
-  { label: 'System Integration', href: '/services/integration', note: 'Connected systems, one source of truth' },
+  { num: '01', label: 'AI Automation', href: '/services/ai-automation', note: 'Remove repetitive work' },
+  { num: '02', label: 'AI Agents', href: '/services/ai-agents', note: 'Voice, support, sales & internal agents' },
+  { num: '03', label: 'Custom Software', href: '/services/custom-software', note: 'Platforms, tools, SaaS, dashboards' },
+  { num: '04', label: 'Web & Mobile', href: '/services/web-mobile', note: 'Websites, web apps, mobile apps' },
+  { num: '05', label: 'AI Product Development', href: '/services/ai-products', note: 'Idea to production AI product' },
+  { num: '06', label: 'System Integration', href: '/services/system-integration', note: 'Connected systems, one source of truth' },
 ];

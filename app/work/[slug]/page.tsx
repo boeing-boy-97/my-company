@@ -169,7 +169,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
           })()}
 
           <div className="mt-14 flex flex-wrap items-center gap-4">
-            <Button href="/start-project">Start a Project Like This</Button>
+            <Button href="/start-project">Build something similar</Button>
             <Link href="/work" className="link-underline text-[14.5px] font-medium text-soft hover:text-ink">
               ← All work
             </Link>

@@ -13,7 +13,7 @@ const CHANNELS = ['Email', 'Phone', 'WhatsApp'];
 const CURRENCIES = ['USD', 'INR', 'EUR', 'GBP', 'AED'] as const;
 const CURRENCY_LABELS: Record<(typeof CURRENCIES)[number], string> = { USD: '$ USD', INR: '₹ INR', EUR: '€ EUR', GBP: '£ GBP', AED: 'AED' };
 
-const STEPS = ['What', 'Problem', 'Assets', 'Current', 'Timeline', 'Budget', 'Company', 'Contact', 'Review'];
+const STEPS = ['Goal', 'Current', 'People', 'Tools', 'Success', 'Timeline', 'Budget', 'Contact', 'Blueprint'];
 
 // Session persistence — progress survives refresh/back within the browser session.
 const STORAGE_KEY = 'kiln-wizard-v1';
@@ -25,6 +25,8 @@ interface SavedWizard {
   objective: string;
   assets: string[];
   currentTech: string;
+  users: string;
+  success: string;
   timeline: string;
   budget: string;
   currency: string;
@@ -45,7 +47,7 @@ function loadSaved(): SavedWizard | null {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as SavedWizard;
-    if (parsed.v !== 2) return null;
+    if (parsed.v !== 3) return null;
     return parsed;
   } catch {
     return null;
@@ -85,6 +87,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
   const [objective, setObjective] = useState(saved?.objective || initialIdea || '');
   const [assets, setAssets] = useState<string[]>(saved?.assets || []);
   const [currentTech, setCurrentTech] = useState(saved?.currentTech || '');
+  const [users, setUsers] = useState(saved?.users || '');
+  const [success, setSuccess] = useState(saved?.success || '');
   const [timeline, setTimeline] = useState(saved?.timeline || '');
   const [budget, setBudget] = useState(saved?.budget || '');
   const [currency, setCurrency] = useState(saved?.currency || 'USD');
@@ -131,14 +135,14 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
     if (submitted) return;
     try {
       const snapshot: SavedWizard = {
-        v: 2, step, projectTypes, objective, assets, currentTech, timeline, budget, currency,
+        v: 3, step, projectTypes, objective, assets, currentTech, users, success, timeline, budget, currency,
         companyName, website, industry, country, contactName, email, phone, whatsapp, channel,
       };
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
     } catch {
       /* storage unavailable — the form still works, it just won't persist */
     }
-  }, [step, projectTypes, objective, assets, currentTech, timeline, budget, currency, companyName, website, industry, country, contactName, email, phone, whatsapp, channel, submitted]);
+  }, [step, projectTypes, objective, assets, currentTech, users, success, timeline, budget, currency, companyName, website, industry, country, contactName, email, phone, whatsapp, channel, submitted]);
 
   // Warn before leaving the page with unsaved progress.
   useEffect(() => {
@@ -178,8 +182,10 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
     const errs: Record<string, string> = {};
     if (step === 0 && projectTypes.length === 0) errs.types = 'Pick at least one option — “Other” works too.';
     if (step === 1 && objective.trim().length < 12) errs.objective = 'Tell us a little more — one or two sentences is perfect.';
-    if (step === 4 && !timeline) errs.timeline = 'Select a timeline — “Flexible” is fine.';
-    if (step === 5 && !budget) errs.budget = 'Select a range — “Not sure” is a valid answer.';
+    if (step === 2 && users.trim().length < 4) errs.users = 'Whoever touches this day to day — a role or a team name is enough.';
+    if (step === 4 && success.trim().length < 8) errs.success = 'What should be true when this works? A rough sentence is fine.';
+    if (step === 5 && !timeline) errs.timeline = 'Select a timeline — “Flexible” is fine.';
+    if (step === 6 && !budget) errs.budget = 'Select a range — “Not sure” is a valid answer.';
     if (step === 7) {
       if (!contactName.trim()) errs.contactName = 'Your name is required';
       if (!email.trim()) errs.email = 'Email is required';
@@ -203,15 +209,17 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
     () => [
       { label: 'Project type', value: projectTypes.join(', ') || '—' },
       { label: 'Objective', value: objective.trim() || '—' },
+      { label: 'Who uses it', value: users.trim() || '—' },
       { label: 'Existing assets', value: assets.join(', ') || '—' },
-      { label: 'Current tech', value: currentTech.trim() || '—' },
+      { label: 'Current systems', value: currentTech.trim() || '—' },
+      { label: 'Success looks like', value: success.trim() || '—' },
       { label: 'Timeline', value: timeline || '—' },
       { label: 'Budget', value: budget ? `${budget}${budget !== 'Not sure' ? ` (${currency})` : ''}` : '—' },
       { label: 'Company', value: companyName || '—' },
       { label: 'Contact', value: `${contactName} · ${email}` || '—' },
       { label: 'Preferred channel', value: channel },
     ],
-    [projectTypes, objective, assets, currentTech, timeline, budget, currency, companyName, contactName, email, channel]
+    [projectTypes, objective, users, assets, currentTech, success, timeline, budget, currency, companyName, contactName, email, channel]
   );
 
   const submit = () => {
@@ -221,6 +229,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
       objective,
       existingAssets: assets,
       currentTech,
+      users,
+      success,
       timeline,
       budgetRange: budget,
       currency,
@@ -316,7 +326,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           <p className="font-mono text-[11px] uppercase tracking-tech text-soft">
             Step {String(step + 1).padStart(2, '0')} <span className="text-faint">/ {String(STEPS.length).padStart(2, '0')}</span>
           </p>
-          <p className="font-mono text-[11px] uppercase tracking-tech text-faint">{STEPS[step]}</p>
+          <p className="font-mono text-[11px] uppercase tracking-tech text-faint">{STEPS[step]} · ~{Math.max(1, Math.round((8 - step) * 0.7))} min left</p>
         </div>
         <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="Form progress">
           <div className="h-full rounded-full bg-accent transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
@@ -336,7 +346,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         {/* STEP 0 — type */}
         {step === 0 && (
           <fieldset>
-            <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What are you looking for?</legend>
+            <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What are you trying to build or improve?</legend>
             <p className="mt-2 text-[14.5px] text-soft">Pick everything that applies — we’ll narrow it together.</p>
             <div className="mt-7 grid gap-2.5 sm:grid-cols-2">
               {PROJECT_TYPES.map((t) => (
@@ -352,7 +362,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         {/* STEP 1 — problem */}
         {step === 1 && (
           <div>
-            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What problem are you trying to solve?</h2>
+            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What is currently happening?</h2>
             <p className="mt-2 text-[14.5px] text-soft">Plain language is perfect. What’s slow, manual, broken — or unbuilt?</p>
             <div className="mt-6">
               <TextAreaField id="objective" label="The problem, in your words" value={objective} onChange={(e) => setObjective(e.target.value)} rows={6} placeholder="e.g. We receive hundreds of WhatsApp enquiries a day and answer them manually…" error={errors.objective} required />
@@ -367,11 +377,29 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </div>
         )}
 
-        {/* STEP 2 — assets */}
+        {/* STEP 2 — who lives with this system */}
         {step === 2 && (
-          <fieldset>
-            <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What do you already have?</legend>
-            <p className="mt-2 text-[14.5px] text-soft">Starting from zero is completely fine.</p>
+          <div>
+            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Who uses the system?</h2>
+            <p className="mt-2 text-[14.5px] text-soft">Roles and teams matter more than headcount — they decide interfaces, permissions and handoffs.</p>
+            <div className="mt-6">
+              <TextAreaField id="users" label="People who live with this daily" value={users} onChange={(e) => setUsers(e.target.value)} rows={3} error={errors.users} required placeholder="e.g. 3 sales coordinators on WhatsApp, a back-office team of 5, owners approve anything over $500" />
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {['Internal team only', 'Customer-facing too', 'Multiple teams', 'External partners'].map((preset) => (
+                <button key={preset} type="button" onClick={() => setUsers(preset)} className="rounded-full border border-line bg-paper px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-tech text-faint transition-colors hover:border-ink/25 hover:text-soft">
+                  {preset}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3 — tools in play: what exists + what it connects to */}
+        {step === 3 && (
+          <div>
+            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Which tools are involved?</h2>
+            <p className="mt-2 text-[14.5px] text-soft">Tick what exists today — then describe it in your own words if you like. Zero is a valid answer.</p>
             <div className="mt-7 grid gap-2.5 sm:grid-cols-2">
               {ASSETS.map((a) => (
                 <OptionChip key={a} selected={assets.includes(a)} onClick={() => toggle(assets, setAssets, a)}>
@@ -379,22 +407,25 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
                 </OptionChip>
               ))}
             </div>
-          </fieldset>
-        )}
-
-        {/* STEP 3 — current technology (optional) */}
-        {step === 3 && (
-          <div>
-            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What technology are you running today?</h2>
-            <p className="mt-2 text-[14.5px] text-soft">Optional — but it helps us understand what has to connect. Spreadsheets count.</p>
-            <div className="mt-6">
-              <TextAreaField id="currentTech" label="Current systems & tools" hint="Optional — skip if not sure" value={currentTech} onChange={(e) => setCurrentTech(e.target.value)} rows={4} placeholder="e.g. Shopify store, Tally for accounting, enquiries tracked in a Google Sheet, WhatsApp Business…" />
+            <div className="mt-7">
+              <TextAreaField id="currentTech" label="Current systems & tools" hint="Optional — how they fit together today" value={currentTech} onChange={(e) => setCurrentTech(e.target.value)} rows={4} placeholder="e.g. Shopify store, Tally for accounting, enquiries tracked in a Google Sheet, WhatsApp Business…" />
             </div>
           </div>
         )}
 
-        {/* STEP 4 — timeline */}
+        {/* STEP 4 — what success looks like */}
         {step === 4 && (
+          <div>
+            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What would success look like?</h2>
+            <p className="mt-2 text-[14.5px] text-soft">Six months after launch — what is true that isn’t true today? We design against this answer.</p>
+            <div className="mt-6">
+              <TextAreaField id="success" label="The “done” picture" value={success} onChange={(e) => setSuccess(e.target.value)} rows={4} error={errors.success} required placeholder="e.g. Enquiries answered in under 2 minutes, no copy-paste between systems, one dashboard the owners actually open" />
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5 — timeline */}
+        {step === 5 && (
           <fieldset>
             <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">When do you want this running?</legend>
             <div className="mt-7 grid gap-2.5 sm:grid-cols-2">
@@ -408,8 +439,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </fieldset>
         )}
 
-        {/* STEP 5 — budget */}
-        {step === 5 && (
+        {/* STEP 6 — budget */}
+        {step === 6 && (
           <fieldset>
             <legend className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">What budget range are you thinking?</legend>
             <p className="mt-2 text-[14.5px] text-soft">A range helps us recommend the right scope. “Not sure” is a perfectly good answer.</p>
@@ -433,8 +464,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </fieldset>
         )}
 
-        {/* STEP 6 — company */}
-        {step === 6 && (
+        {/* STEP 7 — company + contact, one conversational step */}
+        {step === 7 && (
           <div>
             <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Tell us about your company</h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
@@ -446,11 +477,10 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           </div>
         )}
 
-        {/* STEP 7 — contact */}
         {step === 7 && (
           <div>
-            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">How should we contact you?</h2>
-            <div className="mt-7 grid gap-5 sm:grid-cols-2">
+            <h3 className="display-tight mt-10 border-t border-linedark pt-8 font-display text-[clamp(1.2rem,2.2vw,1.55rem)] font-semibold text-ink">How should we reply?</h3>
+            <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <TextField id="contactName" label="Your name" value={contactName} onChange={(e) => setContactName(e.target.value)} placeholder="Full name" error={errors.contactName} required autoComplete="name" />
               <TextField id="email" label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" error={errors.email} required autoComplete="email" />
               <TextField id="phone" label="Phone" optional type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 …" error={errors.phone} autoComplete="tel" />
@@ -472,9 +502,10 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
         {/* STEP 8 — review */}
         {step === 8 && (
           <div>
-            <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Your project brief is ready.</h2>
-            <p className="mt-2 text-[14.5px] text-soft">One look, then send. You can go back and edit anything.</p>
-            <dl className="mt-7 divide-y divide-linedark rounded-2xl border border-line bg-paper">
+            <p className="font-mono text-[10px] uppercase tracking-tech text-accentdeep">Document · kiln-brief · draft</p>
+            <h2 className="display-tight mt-3 font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Your project blueprint.</h2>
+            <p className="mt-2 text-[14.5px] text-soft">One look, then send. Anything wrong? Step back and fix it — nothing is submitted until you press the button.</p>
+            <dl className="mt-7 divide-y divide-linedark rounded-2xl border border-line bg-paper shadow-[0_20px_50px_-35px_rgba(23,25,30,0.35)]">
               {summary.map((row) => (
                 <div key={row.label} className="grid gap-1 px-5 py-3.5 sm:grid-cols-[170px_1fr] sm:gap-4">
                   <dt className="font-mono text-[10.5px] uppercase tracking-tech text-faint sm:pt-1">{row.label}</dt>

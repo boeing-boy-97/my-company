@@ -44,9 +44,9 @@ const RUN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 // ---------- 1. route sweep ----------
 test('public routes return 200', async () => {
   const routes = [
-    '/', '/services', '/services/ai-automation', '/services/ai-agents', '/services/software',
-    '/services/web-mobile', '/services/ai-products', '/services/integration',
-    '/work', '/process', '/industries', '/about', '/insights',
+    '/', '/services', '/services/ai-automation', '/services/ai-agents', '/services/custom-software',
+    '/services/web-mobile', '/services/ai-products', '/services/system-integration',
+    '/work', '/approach', '/industries', '/studio', '/insights',
     '/start-project', '/contact', '/careers', '/privacy', '/cookies', '/terms', '/accessibility',
     '/services/system-integration',
     '/portal/login', '/admin/login', '/portal/forgot', '/api/health',
@@ -383,7 +383,7 @@ test('case studies carry honest nature labels', async () => {
 
 test('system-integration alias serves the integration service page', async () => {
   const alias = await (await fetch(BASE + '/services/system-integration')).text();
-  const canonical = await (await fetch(BASE + '/services/integration')).text();
+  const canonical = await (await fetch(BASE + '/services/system-integration')).text();
   assert.ok(alias.includes('Systems & Integrations') || alias.includes('Integrations'), 'alias renders service content');
 });
 
@@ -409,13 +409,33 @@ test('duplicate brief within 10 minutes returns the SAME reference', async () =>
 });
 
 test('process page shows inputs and outputs per stage', async () => {
-  const html = await (await fetch(BASE + '/process')).text();
+  const html = await (await fetch(BASE + '/approach')).text();
   assert.ok(html.includes('Input') && html.includes('Output'), 'stage input/output rows rendered');
 });
 
-test('wizard includes the current-technology step', async () => {
-  const html = await (await fetch(BASE + '/start-project')).text();
-  assert.ok(html.includes('01') && html.includes('What are you looking for?'), 'wizard first step renders');
+test('wizard re-stepped to the §33 goal-first structure', async () => {
+  const raw = await (await fetch(BASE + '/start-project')).text();
+  const html = raw.replace(/<!-- -->/g, '');
+  // Step 0 opens with the build/improve question; nine steps total incl. Blueprint.
+  assert.ok(html.includes('What are you trying to build or improve?'), 'step 0 heading per §33');
+  assert.ok(html.includes('Step 01') && html.includes('/ 09'), 'progress shows 09 steps');
+  assert.ok(html.includes('min left'), 'completion estimate shown');
+});
+
+test('contact form carries the §32 fields', async () => {
+  const html = await (await fetch(BASE + '/contact')).text();
+  for (const f of ['Your name', 'Email', 'Company', 'Company website', 'What do you need?', 'Budget range', 'Timeline']) {
+    assert.ok(html.includes(f), `contact missing field: ${f}`);
+  }
+  assert.ok(html.includes('One useful detail'), 'conditional contextual question shown');
+});
+
+test('homepage signature sections present (§10–§16 re-composition)', async () => {
+  const html = (await (await fetch(BASE + '/')).text()).replace(/<!-- -->/g, '');
+  assert.ok(html.includes('System canvas'), 'hero Kiln System Canvas');
+  assert.ok(html.includes('Illustrative trace'), 'canvas honesty label');
+  assert.ok(html.includes('Most businesses don\u2019t need more software.'), 'transformation thesis');
+  assert.ok(html.includes('The capability map'), 'services capability map');
 });
 
 test('global search index is embedded and covers all four content types', async () => {
@@ -497,7 +517,7 @@ test('footer shows honest availability status', async () => {
 });
 
 test('process page: interactive stage index + decision gates (§14)', async () => {
-  const html = await getHtml('/process');
+  const html = await getHtml('/approach');
   assert.match(html, /aria-label="Process stages"/);
   for (const n of ['01','02','03','04','05','06','07','08']) {
     assert.ok(html.includes(`id="stage-${n}"`), `missing stage anchor ${n}`);
@@ -508,7 +528,7 @@ test('process page: interactive stage index + decision gates (§14)', async () =
 });
 
 test('fake contact data never rendered publicly (§37)', async () => {
-  for (const p of ['/', '/contact', '/careers', '/about', '/services']) {
+  for (const p of ['/', '/contact', '/careers', '/studio', '/services']) {
     const html = await getHtml(p);
     assert.ok(!html.includes('98765'), `${p} leaks placeholder phone`);
     assert.ok(!html.includes('wa.me/91'), `${p} leaks placeholder WhatsApp`);
@@ -519,7 +539,7 @@ test('fake contact data never rendered publicly (§37)', async () => {
 });
 
 test('SEO metadata on all main routes: title+description+canonical+og (§34)', async () => {
-  for (const p of ['/', '/services', '/work', '/industries', '/process', '/about', '/insights', '/careers', '/contact']) {
+  for (const p of ['/', '/services', '/work', '/industries', '/approach', '/studio', '/insights', '/careers', '/contact']) {
     const html = await getHtml(p);
     assert.match(html, /<title>[^<]{8,}<\/title>/);
     assert.match(html, /name="description" content="[^"]{30,}"/);

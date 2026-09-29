@@ -10,6 +10,11 @@ const ContactSchema = z.object({
   email: z.string().email().max(200),
   topic: z.string().max(80).default('General'),
   message: z.string().min(10).max(4000),
+  company: z.string().max(160).default(''),
+  website: z.string().max(300).default(''),
+  budget: z.string().max(40).default(''),
+  timeline: z.string().max(40).default(''),
+  context: z.string().max(400).default(''),
 });
 
 export async function POST(request: Request) {
@@ -41,6 +46,11 @@ export async function POST(request: Request) {
     email: sanitize(parsed.data.email, 200),
     topic: sanitize(parsed.data.topic, 80),
     message: sanitize(parsed.data.message, 4000),
+    company: sanitize(parsed.data.company, 160),
+    website: sanitize(parsed.data.website, 300),
+    budget: sanitize(parsed.data.budget, 40),
+    timeline: sanitize(parsed.data.timeline, 40),
+    context: sanitize(parsed.data.context, 400),
   });
   await sendMail(entry.email, 'We received your message', `Hi ${entry.name},\n\nThanks for reaching out — we'll get back to you within one business day.\n\n— Kiln Technology Studio`);
 

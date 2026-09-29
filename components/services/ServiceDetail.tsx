@@ -157,7 +157,7 @@ export default function ServiceDetail({ service, heroLede, intro, signature, sig
 
       {additional}
 
-      <CTASection title={ctaTitle || 'Bring us the problem.'} text={`${service.short} Tell us where it hurts — we’ll map the shortest path to a working system.`} primaryLabel={ctaLabel || 'Start a Project'} />
+      <CTASection title={ctaTitle || 'Bring us the problem.'} text={`${service.short} Tell us where it hurts — we’ll map the shortest path to a working system.`} primaryLabel={ctaLabel || 'Discuss this capability'} primaryHref="/contact" secondaryLabel="Describe it as a project" secondaryHref="/start-project" />
     </main>
   );
 }

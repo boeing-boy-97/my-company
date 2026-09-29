@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   ...pageSeo({
     title: 'About — A technology studio built around problems',
     description: 'Who we are, what we believe and how we work. A compact engineering studio solving business problems with software, automation and AI.',
-    path: '/about',
+    path: '/studio',
   }),
 };
 
@@ -36,10 +36,10 @@ export default function AboutPage() {
   return (
     <main>
       <PageHero
-        label="About"
+        label="Studio"
         title="A technology studio built around problems, not products."
         lede="We exist because businesses don’t need more software for software’s sake. They need someone who can hear a problem, design the right system, and be accountable for it running."
-        crumbs={[{ label: 'Home', href: '/' }, { label: 'About' }]}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Studio' }]}
       />
 
       {/* who we are */}
@@ -176,7 +176,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <CTASection />
+      <CTASection title="Meet the studio." text="The best first conversation isn’t a pitch — it’s you describing the problem and us telling you what we’d do about it. If we’re not the right fit, we’ll say so and point you somewhere better." primaryLabel="Book a conversation" primaryHref="/contact" secondaryLabel="Start a project brief" secondaryHref="/start-project" />
     </main>
   );
 }

@@ -48,7 +48,7 @@ const OPTIONS: Option[] = [
     detail: 'Internal tools, dashboards, portals — off-the-shelf doesn’t fit.',
     result: {
       service: 'Custom Software',
-      slug: 'software',
+      slug: 'custom-software',
       why: 'When the process is the differentiator, purpose-built software beats forcing your team into generic tools.',
       scope: 'Discovery, UX, application build, APIs, data model, deployment and handover.',
       next: 'Walk us through the workflow today — spreadsheets and all.',
@@ -84,7 +84,7 @@ const OPTIONS: Option[] = [
     detail: 'CRM, ERP, accounting, e-commerce — data lives in silos.',
     result: {
       service: 'System Integration',
-      slug: 'integration',
+      slug: 'system-integration',
       why: 'Disconnected systems create double entry and blind spots. An integration layer makes them one source of truth.',
       scope: 'Systems audit, integration architecture, API/event build, sync and error handling.',
       next: 'List the systems involved and what data must move between them.',

@@ -8,17 +8,17 @@ export const metadata: Metadata = {
   ...pageSeo({
     title: 'Custom Software Development',
     description: 'Business platforms, internal tools, CRM and ERP systems, SaaS applications, dashboards, API and database systems — built for production.',
-    path: '/services/software',
+    path: '/services/custom-software',
   }),
 };
 
 const BUILDS = ['SaaS products', 'Web applications', 'Internal tools', 'CRM systems', 'ERP systems', 'Dashboards', 'Business platforms', 'API systems', 'Database systems', 'Cloud infrastructure'];
 
 export default function SoftwarePage() {
-  const service = serviceBySlug('software')!;
+  const service = serviceBySlug('custom-software')!;
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd('Custom Software Development', service.short, '/services/software')) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd('Custom Software Development', service.short, '/services/custom-software')) }} />
       <ServiceDetail
         service={service}
         heroLede="Software shaped around how your business actually runs. | Off-the-shelf tools make you adapt to them. Custom software adapts to you — when that’s the right trade, we build it properly."

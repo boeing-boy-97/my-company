@@ -51,6 +51,8 @@ export interface ProjectBriefInput {
   objective: string;
   existingAssets: string[];
   currentTech?: string;
+  users?: string;
+  success?: string;
   timeline: string;
   budgetRange: string;
   currency: string;
@@ -110,6 +112,8 @@ export async function submitProjectBrief(input: ProjectBriefInput): Promise<Acti
     objective,
     existingAssets: sanitizeArray(input.existingAssets || []),
     currentTech: sanitize(input.currentTech || '', 2000),
+    users: sanitize(input.users || '', 1200),
+    success: sanitize(input.success || '', 1200),
     timeline: sanitize(input.timeline, 40),
     budgetRange: sanitize(input.budgetRange, 40),
     currency: ['USD', 'INR', 'EUR', 'GBP', 'AED'].includes(input.currency) ? input.currency : 'USD',
@@ -144,7 +148,10 @@ function vRequiredEmail(email: string): string | null {
 
 // ================= CONTACT =================
 
-export async function submitContact(input: { name: string; email: string; topic: string; message: string; honeypot?: string }): Promise<ActionResult> {
+export async function submitContact(input: {
+  name: string; email: string; topic: string; message: string; honeypot?: string;
+  company?: string; website?: string; budget?: string; timeline?: string; context?: string;
+}): Promise<ActionResult> {
   const ip = await clientIp();
   if (!rateLimit(`contact:${ip}`, 8, 10 * 60_000)) return { ok: false, error: 'Too many messages. Please try again shortly.' };
 
@@ -161,9 +168,18 @@ export async function submitContact(input: { name: string; email: string; topic:
   if (emailErr) errors.email = emailErr;
   const message = sanitize(input.message, 4000);
   if (message.length < 10) errors.message = 'Add a little more detail';
+  const website = sanitize(input.website || '', 300);
+  if (website && !/^(https?:\/\/)?[^\s.]+\.[^\s.]{2,}([\/\?#].*)?$/.test(website)) errors.website = 'Use a full web address like example.com or https://example.com';
   if (Object.keys(errors).length) return { ok: false, error: 'Please review the highlighted fields.', errors };
 
-  await createContact({ name, email, topic: sanitize(input.topic, 80), message });
+  await createContact({
+    name, email, topic: sanitize(input.topic, 80), message,
+    company: sanitize(input.company || '', 160),
+    website,
+    budget: sanitize(input.budget || '', 40),
+    timeline: sanitize(input.timeline || '', 40),
+    context: sanitize(input.context || '', 400),
+  });
   await sendMail(email, 'We received your message', `Hi ${name},\n\nThanks for reaching out — we'll get back to you within one business day.\n\n— Kiln Technology Studio`);
   await track('contact_form_submitted');
   return { ok: true };

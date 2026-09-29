@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/ui/primitives';
 export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
   const [filter, setFilter] = useState('All');
   const visible = filter === 'All' ? cases : cases.filter((c) => c.category === filter);
+  const [feat, ...rest] = visible;
 
   return (
     <div>
@@ -20,8 +21,8 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
               key={f}
               onClick={() => setFilter(f)}
               aria-pressed={active}
-              className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-all duration-250 ${
-                active ? 'border-ink bg-ink text-paper' : 'border-line bg-surface text-soft hover:border-ink/30 hover:text-ink'
+              className={`border-b-2 pb-1.5 font-mono text-[11px] uppercase tracking-tech transition-colors duration-200 ${
+                active ? 'border-accent text-ink' : 'border-transparent text-faint hover:text-soft'
               }`}
             >
               {f}
@@ -39,8 +40,42 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
           />
         </div>
       ) : (
-        <div key={filter} className="mt-12 grid gap-10 md:grid-cols-2">
-          {visible.map((cs, i) => (
+        <>
+          {/* Featured — the archive opens with one large composition */}
+          <Link
+            href={`/work/${feat.slug}`}
+            className="group mt-12 grid items-center gap-10 rounded-2xl border border-line bg-surface p-6 transition-all duration-500 hover:border-ink/20 hover:shadow-[0_40px_80px_-45px_rgba(13,14,17,0.45)] lg:grid-cols-[1.2fr_0.8fr] lg:gap-14 md:p-8"
+          >
+            <CaseVisual variant={feat.visual} className="transition-transform duration-500 ease-out group-hover:scale-[1.01]" />
+            <div>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-tech">
+                <span className="text-accentdeep">Featured</span>
+                <span aria-hidden className="text-faint">·</span>
+                <span className="text-faint">{feat.category}</span>
+                <span aria-hidden className="text-faint">·</span>
+                <span className="text-faint">{feat.industry}</span>
+                <span aria-hidden className="text-faint">·</span>
+                <span className="text-faint">{feat.year}</span>
+              </div>
+              <h2 className="display-tight mt-4 font-display text-[clamp(1.7rem,3.2vw,2.5rem)] font-semibold leading-[1.08] tracking-tight text-ink transition-colors group-hover:text-accentdeep">{feat.title}</h2>
+              <p className="mt-4 max-w-[50ch] text-[15px] leading-[1.7] text-soft">{feat.summary}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {feat.services.map((sv) => (
+                  <span key={sv} className="rounded-full border border-line bg-paper px-3 py-1 font-mono text-[10px] uppercase tracking-tech text-soft">{sv}</span>
+                ))}
+              </div>
+              <span className="mt-7 inline-flex items-center gap-2 text-[14px] font-medium text-ink">
+                <span className="link-underline">Read the full case</span>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform duration-300 group-hover:translate-x-1.5">
+                  <path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </div>
+          </Link>
+
+          {rest.length > 0 && (
+          <div key={filter} className="mt-16 grid gap-10 md:grid-cols-2">
+          {rest.map((cs, i) => (
             <Link
               key={cs.slug}
               href={`/work/${cs.slug}`}
@@ -73,7 +108,9 @@ export default function WorkBrowser({ cases }: { cases: CaseStudy[] }) {
               </div>
             </Link>
           ))}
-        </div>
+          </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHero from '@/components/ui/PageHero';
 import ServiceFinder from '@/components/services/ServiceFinder';
+import CapabilityMap from '@/components/services/CapabilityMap';
 import Reveal from '@/components/ui/Reveal';
 import CTASection from '@/components/ui/CTASection';
 import { services } from '@/content/services';
@@ -27,9 +28,9 @@ const PILLARS = [
   {
     num: '02',
     name: 'Software',
-    href: '/services/software',
+    href: '/services/custom-software',
     statement: 'The platforms, tools and interfaces your business actually runs on — built for production.',
-    slugs: ['software', 'web-mobile'],
+    slugs: ['custom-software', 'web-mobile'],
   },
   {
     num: '03',
@@ -41,9 +42,9 @@ const PILLARS = [
   {
     num: '04',
     name: 'Systems & Integrations',
-    href: '/services/integration',
+    href: '/services/system-integration',
     statement: 'Connected systems with a single source of truth — no more manual syncing between tools.',
-    slugs: ['integration'],
+    slugs: ['system-integration'],
   },
 ] as const;
 
@@ -56,6 +57,14 @@ export default function ServicesPage() {
         lede="You can come to us with any size of ask — from one automation to a full product team. Each practice below links to exactly what we build, and the problems it solves."
         crumbs={[{ label: 'Home', href: '/' }, { label: 'Services' }]}
       />
+
+      {/* Capability map — the interactive practice constellation */}
+      <section className="border-t border-line" aria-labelledby="capmap-title">
+        <div className="mx-auto max-w-shell px-6 py-16 md:py-20">
+          <h2 id="capmap-title" className="sr-only">Kiln capability map</h2>
+          <CapabilityMap />
+        </div>
+      </section>
 
       {/* which service do I need? */}
       <section className="mx-auto max-w-shell px-6 py-14 md:py-20" aria-labelledby="finder-title">

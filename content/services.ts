@@ -14,6 +14,8 @@ export interface Service {
   process: string[];
   deliverables: string[];
   technologies: string[];
+  /** Sub-capabilities shown in the /services capability map. */
+  capabilities: string[];
 }
 
 export const services: Service[] = [
@@ -40,6 +42,7 @@ export const services: Service[] = [
     process: ['Map the workflow end to end', 'Find the steps that can run unattended', 'Build with human checkpoints', 'Measure time saved, then expand'],
     deliverables: ['Workflow specification', 'Working automation system', 'Monitoring dashboard', 'Documentation & handover'],
     technologies: ['n8n', 'Make', 'OpenAI', 'Claude', 'Zapier', 'Webhooks'],
+    capabilities: ['Trigger pipelines', 'Document processing', 'Reporting automation', 'Escalations & approvals', 'Queue & retry logic'],
   },
   {
     slug: 'ai-agents',
@@ -64,9 +67,10 @@ export const services: Service[] = [
     process: ['Define the agent’s job in business terms', 'Design knowledge, tools & guardrails', 'Build, test against real scenarios', 'Deploy with monitoring & human handoff'],
     deliverables: ['Agent design specification', 'Deployed agent with guardrails', 'Analytics on resolution & handoff', 'Escalation playbook'],
     technologies: ['OpenAI', 'Claude', 'Gemini', 'Speech AI', 'RAG', 'n8n'],
+    capabilities: ['Voice agents', 'Support agents', 'Sales & qualification', 'Research agents', 'Guardrails & evals'],
   },
   {
-    slug: 'software',
+    slug: 'custom-software',
     num: '03',
     title: 'Custom Software',
     short: 'Business platforms, internal tools, SaaS applications, dashboards and operational software.',
@@ -88,6 +92,7 @@ export const services: Service[] = [
     process: ['Understand the operation, not just the request', 'Specify the system & data model', 'Build in weekly iterations', 'Launch, measure, evolve'],
     deliverables: ['Technical specification', 'Working software in production', 'Admin tooling', 'Support & improvement plan'],
     technologies: ['Next.js', 'React', 'Node.js', 'Python', 'TypeScript', 'PostgreSQL'],
+    capabilities: ['Operations platforms', 'Internal tools', 'Dashboards', 'SaaS products', 'Admin systems'],
   },
   {
     slug: 'web-mobile',
@@ -112,9 +117,10 @@ export const services: Service[] = [
     process: ['Define goals and success metrics', 'Design the experience', 'Build with performance budgets', 'Ship, monitor, iterate'],
     deliverables: ['Design system & UI', 'Production application', 'Analytics setup', 'Maintenance runway'],
     technologies: ['Next.js', 'React', 'Flutter', 'React Native', 'Tailwind CSS', 'Supabase'],
+    capabilities: ['Product interfaces', 'Web apps', 'iOS & Android', 'Design systems', 'Performance engineering'],
   },
   {
-    slug: 'integration',
+    slug: 'system-integration',
     num: '05',
     title: 'System Integration',
     short: 'APIs, CRM, ERP, payments, communication platforms and third-party integrations.',
@@ -136,6 +142,7 @@ export const services: Service[] = [
     process: ['Audit the current system landscape', 'Design the integration map', 'Build with retry & error handling', 'Monitor data flow continuously'],
     deliverables: ['Integration architecture', 'Working connectors', 'Error monitoring', 'Documentation'],
     technologies: ['REST APIs', 'Webhooks', 'n8n', 'PostgreSQL', 'Stripe', 'Twilio'],
+    capabilities: ['CRM & ERP sync', 'Payments', 'Messaging channels', 'Data pipelines', 'Event bus & APIs'],
   },
   {
     slug: 'ai-products',
@@ -160,6 +167,7 @@ export const services: Service[] = [
     process: ['Validate the idea against real usage', 'Prototype the riskiest part first', 'Design the AI architecture', 'Ship MVP, then scale'],
     deliverables: ['Validation report', 'Working prototype', 'Production AI system', 'Evaluation & monitoring setup'],
     technologies: ['OpenAI', 'Claude', 'Gemini', 'RAG', 'Vector databases', 'Python'],
+    capabilities: ['Model selection', 'RAG architecture', 'Evaluation harness', 'Prototype → MVP', 'Monitoring & cost'],
   },
 ];
 

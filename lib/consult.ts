@@ -28,10 +28,10 @@ const SIGNALS: Array<{ keys: RegExp; solution: string; href: string; weight: num
   { keys: /whatsapp|enquir(y|ies)|lead|follow.?up|qualif|respond|response time|reply/i, solution: 'AI Automation', href: '/services/ai-automation', weight: 2 },
   { keys: /manual|data entry|re-key|copy.?paste|spreadsheet|repeat|repetitive|invoice|document|extract|ocr|report/i, solution: 'Workflow Automation', href: '/services/ai-automation', weight: 2 },
   { keys: /receptionist|appointment|booking|calendar|schedul|voice|call(er|s|ing)?\b|phone|support agent|chatbot|help.?desk|ticket/i, solution: 'AI Agent', href: '/services/ai-agents', weight: 2 },
-  { keys: /crm|erp|dashboard|internal tool|admin panel|portal|inventory|ops platform|manage(ment)? system/i, solution: 'Custom Software', href: '/services/software', weight: 2 },
+  { keys: /crm|erp|dashboard|internal tool|admin panel|portal|inventory|ops platform|manage(ment)? system/i, solution: 'Custom Software', href: '/services/custom-software', weight: 2 },
   { keys: /website|landing|e-?commerce|shop|storefront|web app|saas idea|saas|subscription product/i, solution: 'Web / SaaS Product', href: '/services/web-mobile', weight: 2 },
   { keys: /mobile|app store|ios|android|flutter/i, solution: 'Mobile Application', href: '/services/web-mobile', weight: 3 },
-  { keys: /integrat|api|connect|sync|zapier|migration|legacy|outdated|upgrade|moderni[sz]/i, solution: 'System Integration', href: '/services/software', weight: 1 },
+  { keys: /integrat|api|connect|sync|zapier|migration|legacy|outdated|upgrade|moderni[sz]/i, solution: 'System Integration', href: '/services/custom-software', weight: 1 },
   { keys: /idea|prototype|mvp|validate|startup|new product/i, solution: 'AI Product Development', href: '/services/ai-products', weight: 1 },
 ];
 
