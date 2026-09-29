@@ -41,6 +41,8 @@ export interface LeadView {
   objective: string;
   existingAssets: string[];
   currentTech?: string;
+  users?: string;
+  success?: string;
   timeline: string;
   budgetRange: string;
   currency?: string;
@@ -87,6 +89,8 @@ export default function LeadDetailTabs({
       <Row label="Objective" value={lead.objective} />
       <Row label="Existing assets" value={lead.existingAssets.join(', ')} />
       <Row label="Current technology" value={lead.currentTech} />
+      <Row label="Who uses it" value={lead.users} />
+      <Row label="Success looks like" value={lead.success} />
       <Row label="Timeline" value={lead.timeline} />
       <Row label="Budget" value={lead.budgetRange + (lead.currency && lead.budgetRange !== 'Not sure' && lead.budgetRange !== 'Not shared yet' ? ` (${lead.currency})` : '')} />
       <Row label="Company" value={[lead.companyName, lead.website, lead.industry, lead.country].filter(Boolean).join(' · ')} />

@@ -60,6 +60,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             objective: lead.objective,
             existingAssets: lead.existingAssets,
             currentTech: lead.currentTech,
+            users: lead.users,
+            success: lead.success,
             timeline: lead.timeline,
             budgetRange: lead.budgetRange,
             currency: lead.currency,

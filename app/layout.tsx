@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body>
         <noscript>
-          <style>{`.reveal,.mask-line>span{opacity:1!important;transform:none!important}`}</style>
+          <style>{`.reveal,.mask-line>span{opacity:1!important;transform:none!important}.reveal-wipe{clip-path:none!important}`}</style>
         </noscript>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd()) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />

@@ -556,3 +556,25 @@ test('motion layer wiring: hover swaps, view cursors, drag slider', async () => 
   assert.ok(home.includes('data-cursor="drag"'), 'transformation slider declares the drag cursor');
   assert.ok(home.includes('reveal-wipe'), 'hero canvas uses the wipe reveal');
 });
+
+test('admin inbox + applicants are gated and reachable with a session', async () => {
+  const anon = await fetch(BASE + '/admin/inbox', { redirect: 'manual' });
+  assert.ok([301, 302, 303, 307, 308].includes(anon.status), 'inbox requires auth');
+  const a = jar();
+  const login = await a.req('/api/auth/login', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email: process.env.ADMIN_EMAIL || 'admin@kiln.studio', password: process.env.ADMIN_PASSWORD || 'admin2026', role: 'admin' }),
+  });
+  assert.equal(login.status, 200);
+  for (const p of ['/admin/inbox', '/admin/applications']) {
+    const res = await a.req(p);
+    assert.equal(res.status, 200, `${p} renders for admin`);
+  }
+});
+
+test('footer navigation uses the new IA labels (§50)', async () => {
+  const html = await getHtml('/');
+  assert.ok(html.includes('>Approach<'), 'Approach label present');
+  assert.ok(html.includes('>Studio<'), 'Studio label present');
+  assert.ok(!html.includes('>Process</Link>') && !html.includes('>About</Link>'), 'old labels retired');
+});

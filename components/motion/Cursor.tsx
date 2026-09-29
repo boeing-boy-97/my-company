@@ -112,19 +112,19 @@ export default function Cursor() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-[9998] hidden md:block">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[9998] hidden md:block mix-blend-difference">
       <div
         ref={dot}
-        className="fixed left-0 top-0 h-[7px] w-[7px] rounded-full bg-ink transition-opacity duration-200"
+        className="fixed left-0 top-0 h-[7px] w-[7px] rounded-full bg-white transition-opacity duration-200"
         style={{ transform: 'translate3d(-100px,-100px,0)' }}
       />
       <div
         ref={ring}
         data-mode=""
-        className="kiln-ring fixed left-0 top-0 flex h-[34px] w-[34px] items-center justify-center rounded-full border border-ink/50 transition-[opacity,background-color,border-color] duration-200 ease-out will-change-transform"
+        className="kiln-ring fixed left-0 top-0 flex h-[34px] w-[34px] items-center justify-center rounded-full border border-white/60 transition-[opacity,background-color,border-color] duration-200 ease-out will-change-transform"
         style={{ transform: 'translate3d(-100px,-100px,0)' }}
       >
-        <span className="kiln-ring-label font-mono text-[8.5px] uppercase tracking-[0.22em] text-paper opacity-0 transition-opacity duration-150">
+        <span className="kiln-ring-label font-mono text-[8.5px] uppercase tracking-[0.22em] text-black opacity-0 transition-opacity duration-150">
           View
         </span>
       </div>

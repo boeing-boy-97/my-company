@@ -26,7 +26,7 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
   }
   // key static pages
   entries.push(
-    { title: 'Our process', category: 'Pages', href: '/approach', text: 'Eight stages from discovery to support' },
+    { title: 'Our approach', category: 'Pages', href: '/approach', text: 'Eight stages from discovery to support, with a decision gate at each' },
     { title: 'About the studio', category: 'Pages', href: '/studio', text: 'Who we are and how we work' },
     { title: 'Start a project', category: 'Pages', href: '/start-project', text: 'Send a project brief' },
     { title: 'Contact', category: 'Pages', href: '/contact', text: 'Email, WhatsApp, phone' },

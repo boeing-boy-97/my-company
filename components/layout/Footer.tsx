@@ -21,7 +21,7 @@ const cols = [
     links: [
       { label: 'All services', href: '/services' },
       { label: 'Work', href: '/work' },
-      { label: 'Process', href: '/approach' },
+      { label: 'Approach', href: '/approach' },
       { label: 'Industries', href: '/industries' },
       { label: 'Insights', href: '/insights' },
     ],
@@ -29,7 +29,7 @@ const cols = [
   {
     title: 'Company',
     links: [
-      { label: 'About', href: '/studio' },
+      { label: 'Studio', href: '/studio' },
       { label: 'Careers', href: '/careers' },
       { label: 'Contact', href: '/contact' },
       { label: 'Start a project', href: '/start-project' },

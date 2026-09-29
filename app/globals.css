@@ -314,10 +314,10 @@ html.kiln-cursor textarea,
 html.kiln-cursor select { cursor: auto; } /* text entry keeps its caret */
 
 .kiln-ring { opacity: 0.85; }
-.kiln-ring[data-mode="hover"] { border-color: rgba(23, 25, 30, 0.65); background: rgba(228, 87, 46, 0.06); }
-.kiln-ring[data-mode="view"] { border-color: transparent; background: #17191E; }
+.kiln-ring[data-mode="hover"] { border-color: #fff; background: rgba(255, 255, 255, 0.14); }
+.kiln-ring[data-mode="view"] { border-color: transparent; background: #fff; }
 .kiln-ring[data-mode="view"] .kiln-ring-label { opacity: 1; }
-.kiln-ring[data-mode="drag"] { border-color: rgba(228, 87, 46, 0.55); background: rgba(228, 87, 46, 0.08); }
+.kiln-ring[data-mode="drag"] { border-color: #fff; background: rgba(255, 255, 255, 0.22); }
 .kiln-ring.is-press { transition: none; }
 html.kiln-cursor .kiln-ring.is-press { filter: none; opacity: 0.6; }
 

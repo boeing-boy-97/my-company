@@ -14,7 +14,13 @@ export const site = {
   descriptor: 'Technology Studio',
   tagline: 'Bring us the problem. We’ll build the technology.',
   altTagline: 'From idea to production.',
-  url: process.env.BASE_URL || 'http://localhost:3000',
+  url:
+    process.env.BASE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : 'http://localhost:3000'),
   location: { city: 'Nagpur', region: 'Maharashtra', country: 'India' },
   contact: {
     email: 'hello@kiln.studio',

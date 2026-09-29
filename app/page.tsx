@@ -29,48 +29,6 @@ export const metadata = pageSeo({
   path: '/',
 });
 
-const serviceIcons: Record<string, React.ReactNode> = {
-  automation: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="2.5" y="4" width="6" height="6" rx="1.4" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="15.5" y="14" width="6" height="6" rx="1.4" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8.5 7h6a3 3 0 0 1 3 3v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2.6 3" />
-    </svg>
-  ),
-  agent: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <circle cx="18.5" cy="18.5" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-  software: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="m8 9-3.5 3L8 15M16 9l3.5 3L16 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M13.5 6.5 10.5 17.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  ),
-  webmobile: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <rect x="2.5" y="4.5" width="15" height="11" rx="1.6" stroke="currentColor" strokeWidth="1.5" />
-      <rect x="15" y="9.5" width="6.5" height="10" rx="1.6" stroke="currentColor" strokeWidth="1.5" fill="#F7F5F1" />
-    </svg>
-  ),
-  integration: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <circle cx="6" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="18" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-      <circle cx="18" cy="18" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8.8 10.8 15.7 7M8.8 13.2l6.9 3.8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  ),
-  product: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 2.5 20 7v10l-8 4.5L4 17V7l8-4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M12 11.5 20 7M12 11.5 4 7M12 11.5v10" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  ),
-};
-
 export default async function HomePage() {
   const [allCases, allTestimonials] = await Promise.all([
     cmsPublished<CaseStudyRecord>('caseStudies'),

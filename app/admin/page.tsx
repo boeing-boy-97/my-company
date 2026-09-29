@@ -133,13 +133,17 @@ export default async function AdminPage() {
           <section className="rounded-2xl border border-line bg-surface p-6">
             <h2 className="font-display text-[16px] font-semibold text-ink">Inbox</h2>
             <ul className="mt-4 space-y-3">
-              <li className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
-                <span className="text-[13px] text-soft">Contact messages</span>
-                <span className="font-mono text-[13px] font-semibold text-ink">{contacts.length}</span>
+              <li>
+                <Link href="/admin/inbox" className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3 transition-colors hover:border-ink/25">
+                  <span className="text-[13px] text-soft">Contact messages {contacts.length > 0 && <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 font-mono text-[10px] text-accentdeep">inbox</span>}</span>
+                  <span className="font-mono text-[13px] font-semibold text-ink">{contacts.length} →</span>
+                </Link>
               </li>
-              <li className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
-                <span className="text-[13px] text-soft">Job applications</span>
-                <span className="font-mono text-[13px] font-semibold text-ink">{applications.length}</span>
+              <li>
+                <Link href="/admin/applications" className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3 transition-colors hover:border-ink/25">
+                  <span className="text-[13px] text-soft">Job applications {applications.length > 0 && <span className="ml-2 rounded-full bg-accent/10 px-2 py-0.5 font-mono text-[10px] text-accentdeep">inbox</span>}</span>
+                  <span className="font-mono text-[13px] font-semibold text-ink">{applications.length} →</span>
+                </Link>
               </li>
               <li className="flex items-center justify-between rounded-xl border border-line bg-paper px-4 py-3">
                 <span className="text-[13px] text-soft">Clients</span>
