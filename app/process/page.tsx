@@ -2,90 +2,17 @@ import type { Metadata } from 'next';
 import PageHero from '@/components/ui/PageHero';
 import Reveal from '@/components/ui/Reveal';
 import CTASection from '@/components/ui/CTASection';
+import ProcessNav from '@/components/process/ProcessNav';
+import { PROCESS_STAGES as STAGES } from '@/content/process-stages';
 import { pageSeo } from '@/lib/seo';
 
 export const metadata: Metadata = {
   ...pageSeo({
     title: 'Process — From problem to production',
-    description: 'Eight stages from discovery to support, each with real deliverables. See exactly how a project moves from a described problem to a running system.',
+    description: 'Eight stages from discovery to support, each with real deliverables and a decision gate. See exactly how a project moves from a described problem to a running system.',
     path: '/process',
   }),
 };
-
-const STAGES = [
-  {
-    num: '01',
-    name: 'Discovery',
-    headline: 'We learn the business problem before we talk solutions.',
-    body: 'Interviews with the people who live with the problem, a review of the current tools and flows, and honest questions about what success means. We often find the real problem is adjacent to the one we were called about.',
-    deliverables: ['Problem statement in plain language', 'Current-state map of tools & flows', 'Success criteria everyone agrees on'],
-    input: 'The problem as you describe it, access to the people who live with it',
-    output: 'Agreed problem statement + success criteria',
-  },
-  {
-    num: '02',
-    name: 'Strategy',
-    headline: 'The problem becomes a plan with a budget and a sequence.',
-    body: 'We weigh build vs. buy vs. automate, define the smallest version that proves value, and sequence the work so the riskiest questions get answered first.',
-    deliverables: ['Recommended approach & alternatives', 'Scope, phasing and investment range', 'Risk register — what could go wrong, and the mitigation'],
-    input: 'Problem statement, constraints, budget appetite',
-    output: 'Plan, phasing and investment range you can approve',
-  },
-  {
-    num: '03',
-    name: 'UX',
-    headline: 'Flows and interfaces designed around real usage.',
-    body: 'Whether the surface is a dashboard, a WhatsApp conversation or an agent’s dialogue, we design the experience before engineering it — with states, edge cases and empty screens included.',
-    deliverables: ['User flows & wireframes', 'Interface design with component rules', 'Conversation / notification design where relevant'],
-    input: 'Approved plan, real usage examples',
-    output: 'Flows and interface designs to sign off',
-  },
-  {
-    num: '04',
-    name: 'Architecture',
-    headline: 'The system is drawn before it is built.',
-    body: 'Data model, integration map, permission boundaries for anything automated, and the operational plan: hosting, backups, monitoring. Boring decisions, made deliberately.',
-    deliverables: ['Architecture diagram & data model', 'Integration map with failure handling', 'Security & access decisions documented'],
-    input: 'Approved designs, existing systems inventory',
-    output: 'Architecture and data model with security decisions',
-  },
-  {
-    num: '05',
-    name: 'Development',
-    headline: 'Weekly iterations you can see and respond to.',
-    body: 'The build moves in short cycles with a demo at the end of each. You watch the system take shape against real data, and course corrections cost days instead of months.',
-    deliverables: ['Working increments every week', 'Staging environment with real data', 'Automated tests on the critical paths'],
-    input: 'Approved architecture, access to needed systems',
-    output: 'Weekly working increments on staging',
-  },
-  {
-    num: '06',
-    name: 'Testing',
-    headline: 'We try to break it before your users do.',
-    body: 'Functional, integration and load checks against the scenarios we mapped in discovery — including the awkward ones: dropped connections, duplicate messages, bad data.',
-    deliverables: ['Test report against the success criteria', 'Edge-case log and resolutions', 'Performance baseline'],
-    input: 'Working increments, success criteria',
-    output: 'Test report and resolved edge cases',
-  },
-  {
-    num: '07',
-    name: 'Deployment',
-    headline: 'Launch is a controlled event, not a leap of faith.',
-    body: 'Gradual rollout where possible — shadow mode, staged traffic, or a pilot group first. Monitoring is live before users arrive, and rollback paths exist from minute one.',
-    deliverables: ['Deployment runbook', 'Monitoring & alerting in place', 'Training and documentation for your team'],
-    input: 'Tested build, your team for training',
-    output: 'Live system, runbook and trained users',
-  },
-  {
-    num: '08',
-    name: 'Support',
-    headline: 'The system keeps improving after launch.',
-    body: 'We watch how it performs against the success criteria, fix what surfaces, and evolve it as the business changes. Some clients keep us on retainer; others take the keys. Both are valid exits.',
-    deliverables: ['Support & maintenance agreement', 'Monthly health & usage report', 'Improvement backlog, prioritized by value'],
-    input: 'Live system, feedback from real use',
-    output: 'Health reports and a prioritized improvement backlog',
-  },
-];
 
 export default function ProcessPage() {
   return (
@@ -98,14 +25,12 @@ export default function ProcessPage() {
       />
 
       <section className="border-t border-line">
-        <div className="relative mx-auto max-w-shell px-6 py-20 md:py-28">
-          {/* rail */}
-          <div className="pointer-events-none absolute bottom-24 left-6 top-24 hidden w-px bg-line md:left-[calc(50%-400px)] md:block lg:left-[calc(50%-480px)]" aria-hidden />
+        <div className="mx-auto grid max-w-shell gap-16 px-6 py-20 md:grid-cols-[190px_minmax(0,1fr)] md:gap-14 md:py-28 lg:gap-20">
+          <ProcessNav stages={STAGES.map(({ num, name }) => ({ num, name }))} />
           <ol className="space-y-16 md:space-y-24">
             {STAGES.map((stage, i) => (
               <Reveal key={stage.num} as="li">
-                <div className={`grid gap-8 md:grid-cols-2 md:gap-16 ${i % 2 === 1 ? 'md:[direction:rtl]' : ''}`}>
-                  <div className="md:[direction:ltr]">
+                <div id={`stage-${stage.num}`} className="grid scroll-mt-28 gap-8 md:grid-cols-2 md:gap-16">                  <div>
                     <div className="flex items-center gap-4">
                       <span className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface font-mono text-[13px] text-accent shadow-[0_10px_30px_-16px_rgba(23,25,30,0.3)]">
                         {stage.num}
@@ -115,7 +40,7 @@ export default function ProcessPage() {
                     <p className="mt-5 font-display text-[17px] font-medium leading-snug text-ink">{stage.headline}</p>
                     <p className="mt-3 max-w-[480px] text-[15px] leading-[1.7] text-soft">{stage.body}</p>
                   </div>
-                  <div className="md:[direction:ltr]">
+                  <div>
                     <div className="rounded-2xl border border-line bg-surface p-7">
                       <p className="label-tech">You receive</p>
                       <ul className="mt-4 space-y-3">
@@ -137,6 +62,12 @@ export default function ProcessPage() {
                           <p className="font-mono text-[9.5px] uppercase tracking-tech text-accentdeep">Output</p>
                           <p className="mt-1 text-[12.5px] leading-relaxed text-soft">{stage.output}</p>
                         </div>
+                      </div>
+                      <div className="mt-4 flex items-start gap-3 rounded-xl border border-accent/25 bg-accenthalo px-4 py-3">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden className="mt-[3px] shrink-0 text-accentdeep">
+                          <path d="M6 4v16M6 12h9m-9 0 3-3m-3 3 3 3M18 7v10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <p className="text-[12.5px] leading-relaxed text-soft"><span className="font-mono text-[9.5px] uppercase tracking-tech text-accentdeep">Decision gate · </span>{stage.gate}</p>
                       </div>
                     </div>
                   </div>

@@ -3,7 +3,7 @@ import PageHero from '@/components/ui/PageHero';
 import { site } from '@/lib/site';
 import { pageSeo } from '@/lib/seo';
 
-export const metadata: Metadata = pageSeo({ title: 'Privacy Policy', description: 'How we handle data — plainly.', path: '/privacy' });
+export const metadata: Metadata = pageSeo({ title: 'Privacy Policy', description: 'What Kiln collects, why we collect it, how long we keep it and the rights you have over your data — written plainly, matching what this site actually does.', path: '/privacy' });
 
 export default function PrivacyPage() {
   const updated = 'Last updated: September 2026';

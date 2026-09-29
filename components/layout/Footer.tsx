@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Logo from './Logo';
-import { site } from '@/lib/site';
+import { site, isConfigured, publicSocials } from '@/lib/site';
 import { getSiteContact } from '@/lib/siteSettings';
 
 const cols = [
@@ -76,16 +76,20 @@ export default async function Footer() {
                   {contact.email}
                 </a>
               </li>
-              <li>
-                <a href={`tel:${contact.phoneRaw}`} className="link-underline text-soft hover:text-ink">
-                  {contact.phone}
-                </a>
-              </li>
-              <li>
-                <a href={`https://wa.me/${contact.whatsappRaw}`} target="_blank" rel="noopener noreferrer" className="link-underline text-soft hover:text-ink">
-                  WhatsApp
-                </a>
-              </li>
+              {isConfigured(contact.phoneRaw) && (
+                <li>
+                  <a href={`tel:${contact.phoneRaw}`} className="link-underline text-soft hover:text-ink">
+                    {contact.phone}
+                  </a>
+                </li>
+              )}
+              {isConfigured(contact.whatsappRaw) && (
+                <li>
+                  <a href={`https://wa.me/${contact.whatsappRaw}`} target="_blank" rel="noopener noreferrer" className="link-underline text-soft hover:text-ink">
+                    WhatsApp
+                  </a>
+                </li>
+              )}
               <li className="pt-1 text-[12.5px] leading-relaxed text-faint">
                 {contact.hours}
                 <br />
@@ -110,9 +114,9 @@ export default async function Footer() {
             <Link href="/cookies" className="text-[12.5px] text-faint transition-colors hover:text-ink">Cookies</Link>
             <Link href="/accessibility" className="text-[12.5px] text-faint transition-colors hover:text-ink">Accessibility</Link>
           </nav>
-          {site.socials.length > 0 && (
+          {publicSocials.length > 0 && (
             <div className="flex gap-4">
-              {site.socials.map((s) => (
+              {publicSocials.map((s) => (
                 <a key={s.id} href={s.url} target="_blank" rel="noopener noreferrer" className="text-[12.5px] text-faint transition-colors hover:text-ink">
                   {s.label}
                 </a>

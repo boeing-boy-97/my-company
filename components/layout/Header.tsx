@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Logo from './Logo';
-import { navLinks, servicesMenu, site } from '@/lib/site';
+import { navLinks, servicesMenu, site, hasRealWhatsapp } from '@/lib/site';
 import { trackAction } from '@/lib/actions';
 
 function CtaButton() {
@@ -202,9 +202,11 @@ export default function Header() {
             <a href={`mailto:${site.contact.email}`} tabIndex={open ? 0 : -1} className="mt-3 block text-[15px] text-ink underline-offset-4 hover:underline">
               {site.contact.email}
             </a>
-            <a href={`https://wa.me/${site.contact.whatsappRaw}`} tabIndex={open ? 0 : -1} target="_blank" rel="noopener noreferrer" className="mt-1.5 block text-[15px] text-soft hover:text-ink">
-              WhatsApp — {site.contact.whatsapp}
-            </a>
+            {hasRealWhatsapp && (
+              <a href={`https://wa.me/${site.contact.whatsappRaw}`} tabIndex={open ? 0 : -1} target="_blank" rel="noopener noreferrer" className="mt-1.5 block text-[15px] text-soft hover:text-ink">
+                WhatsApp — {site.contact.whatsapp}
+              </a>
+            )}
           </div>
         </div>
       </div>

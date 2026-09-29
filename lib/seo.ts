@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { site } from './site';
+import { site, isConfigured, publicSocials } from './site';
 
 type PageSeo = {
   title: string;
@@ -43,14 +43,14 @@ export function orgJsonLd() {
     logo: `${site.url}/favicon.svg`,
     description: site.tagline,
     email: site.contact.email,
-    telephone: site.contact.phone,
+    ...(isConfigured(site.contact.phoneRaw) ? { telephone: site.contact.phone } : {}),
     address: {
       '@type': 'PostalAddress',
       addressLocality: site.location.city,
       addressRegion: site.location.region,
       addressCountry: 'IN',
     },
-    sameAs: site.socials.map((s) => s.url),
+    ...(publicSocials.length > 0 ? { sameAs: publicSocials.map((s) => s.url) } : {}),
   };
 }
 

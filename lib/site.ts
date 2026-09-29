@@ -41,6 +41,35 @@ export const site = {
   currencies: ['USD', 'INR', 'EUR', 'GBP', 'AED'] as const,
 };
 
+// ------------------------------------------------------------
+// Placeholder detection. Until the values above are replaced
+// with real company data, the site must not present fake phone
+// numbers or dead social links as if they were real. Anything
+// matching these patterns is treated as "not configured yet"
+// and the corresponding UI is hidden (not rendered with an X).
+// ------------------------------------------------------------
+const PLACEHOLDER_PATTERNS = [
+  '9876543210',
+  '98765 43210',
+  'your-company',
+  'example.com',
+  'johndoe',
+  'janedoe',
+  'acme',
+];
+
+/** True when a config value looks like a real, human-entered value. */
+export function isConfigured(value: string | undefined | null): boolean {
+  if (!value) return false;
+  const v = value.toLowerCase().replace(/\s+/g, '');
+  return v.length > 0 && !PLACEHOLDER_PATTERNS.some((p) => v.includes(p.replace(/\s+/g, '')));
+}
+
+/** Contact channels safe to show publicly right now. */
+export const hasRealPhone = isConfigured(site.contact.phoneRaw);
+export const hasRealWhatsapp = isConfigured(site.contact.whatsappRaw);
+export const publicSocials = site.socials.filter((s) => isConfigured(s.url));
+
 // Primary navigation — single source of truth for the site's route map.
 export const navLinks = [
   { label: 'Work', href: '/work' },

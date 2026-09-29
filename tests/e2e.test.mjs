@@ -36,6 +36,7 @@ function jar() {
 }
 
 const json = (res) => res.json();
+const getHtml = (path) => fetch(BASE + path).then((r) => r.text());
 
 // Per-run uniqueness so the suite can be re-run against persisted demo data.
 const RUN = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -493,4 +494,36 @@ test('services page offers the which-service finder', async () => {
 test('footer shows honest availability status', async () => {
   const html = await (await fetch(BASE + '/')).text();
   assert.ok(html.includes('Currently accepting new projects') || html.includes('Project capacity currently full'), 'availability status present');
+});
+
+test('process page: interactive stage index + decision gates (§14)', async () => {
+  const html = await getHtml('/process');
+  assert.match(html, /aria-label="Process stages"/);
+  for (const n of ['01','02','03','04','05','06','07','08']) {
+    assert.ok(html.includes(`id="stage-${n}"`), `missing stage anchor ${n}`);
+  }
+  const gates = (html.match(/Decision gate/g) ?? []).length;
+  assert.ok(gates >= 8 && gates % 2 === 0, `expected 8 decision gates (x2 w/ RSC payload), saw ${gates}`);
+  assert.match(html, /role="progressbar"/);
+});
+
+test('fake contact data never rendered publicly (§37)', async () => {
+  for (const p of ['/', '/contact', '/careers', '/about', '/services']) {
+    const html = await getHtml(p);
+    assert.ok(!html.includes('98765'), `${p} leaks placeholder phone`);
+    assert.ok(!html.includes('wa.me/91'), `${p} leaks placeholder WhatsApp`);
+    assert.ok(!html.includes('your-company'), `${p} leaks placeholder social URLs`);
+  }
+  // email must still be present — the real, working channel
+  assert.match(await getHtml('/'), /hello@kiln\.studio/);
+});
+
+test('SEO metadata on all main routes: title+description+canonical+og (§34)', async () => {
+  for (const p of ['/', '/services', '/work', '/industries', '/process', '/about', '/insights', '/careers', '/contact']) {
+    const html = await getHtml(p);
+    assert.match(html, /<title>[^<]{8,}<\/title>/);
+    assert.match(html, /name="description" content="[^"]{30,}"/);
+    assert.match(html, /rel="canonical"/);
+    assert.match(html, /property="og:title"/);
+  }
 });

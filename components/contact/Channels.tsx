@@ -1,7 +1,7 @@
 'use client';
 import Reveal from '@/components/ui/Reveal';
 import { trackAction } from '@/lib/actions';
-import { site } from '@/lib/site';
+import { site, hasRealPhone, hasRealWhatsapp } from '@/lib/site';
 
 const CHANNELS = [
   {
@@ -54,9 +54,12 @@ const CHANNELS = [
 ];
 
 export default function Channels() {
+  const visible = CHANNELS.filter((ch) =>
+    ch.label === 'Phone' ? hasRealPhone : ch.label === 'WhatsApp' ? hasRealWhatsapp : true,
+  );
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      {CHANNELS.map((ch, i) => (
+      {visible.map((ch, i) => (
         <Reveal key={ch.label} delay={i * 70}>
           <a
             href={ch.href}

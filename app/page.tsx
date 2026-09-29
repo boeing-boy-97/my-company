@@ -16,6 +16,16 @@ import { techStack } from '@/content/tech';
 import { cmsPublished, type CaseStudyRecord, type TestimonialRecord } from '@/lib/store';
 import HeroChoreography from '@/components/home/HeroChoreography';
 
+import { pageSeo } from '@/lib/seo';
+import { site } from '@/lib/site';
+
+export const metadata = pageSeo({
+  title: `${site.name} — Technology for ambitious businesses`,
+  description:
+    'We design, build and automate digital systems that help businesses move faster — from AI agents and workflow automation to custom software and complete digital products.',
+  path: '/',
+});
+
 const serviceIcons: Record<string, React.ReactNode> = {
   automation: (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>

@@ -438,7 +438,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           <div>
             <h2 className="display-tight font-display text-[clamp(1.5rem,3vw,2.1rem)] font-semibold text-ink">Tell us about your company</h2>
             <div className="mt-7 grid gap-5 sm:grid-cols-2">
-              <TextField id="companyName" label="Company name" optional value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Acme Trading LLC" autoComplete="organization" />
+              <TextField id="companyName" label="Company name" optional value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="The name you'll be invoiced as" autoComplete="organization" />
               <TextField id="website" label="Website" optional value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="acme.com" error={errors.website} />
               <TextField id="industry" label="Industry" optional value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="e.g. Logistics" />
               <TextField id="country" label="Country" optional value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. United Arab Emirates" autoComplete="country-name" />
