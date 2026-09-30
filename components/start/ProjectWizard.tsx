@@ -270,37 +270,37 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
   if (submitted) {
     return (
       <div ref={topRef} className="mx-auto max-w-[680px] scroll-mt-32 animate-fadeswap">
-        <div className="rounded-3xl border border-line bg-surface p-8 text-center md:p-14">
-          <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-ok/10">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden className="done-check text-ok">
-              <path d="M4 12.5 9.5 18 20 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-          <h2 className="display-tight mt-6 font-display text-[clamp(1.7rem,3.6vw,2.4rem)] font-semibold text-ink">Your project brief is with us.</h2>
-          <p className="mx-auto mt-3 max-w-[440px] text-[15.5px] leading-relaxed text-soft">
+        <div className="border-y border-line py-9 md:py-12">
+          <div className="mb-8 flex max-w-[520px] items-center gap-3" role="status" aria-label="Project brief received">
+            <span className="font-mono text-[10px] uppercase tracking-tech text-accentdeep">Kiln / 01</span>
+            <span className="h-px flex-1 bg-line" aria-hidden />
+            <span className="font-mono text-[10px] uppercase tracking-tech text-soft">Brief received</span>
+          </div>
+          <h2 className="display-tight font-display text-left text-[clamp(1.7rem,3.6vw,2.4rem)] font-semibold text-ink">Your project brief is with us.</h2>
+          <p className="mt-3 max-w-[500px] text-left text-[15.5px] leading-relaxed text-soft">
             We’ll reply within one business day with next steps and a few clarifying questions. A confirmation email is on its way to <span className="font-medium text-ink">{email}</span>.
           </p>
-          <div className="animate-fadeswap mx-auto mt-8 inline-flex items-center gap-3 rounded-full border border-line bg-paper px-6 py-3" style={{ animationDelay: '260ms' }}>
-            <span className="font-mono text-[10.5px] uppercase tracking-tech text-faint">Reference</span>
-            <span className="font-mono text-[15px] font-semibold text-accentdeep">{submitted.ref}</span>
+          <div className="animate-fadeswap mt-7 flex max-w-[520px] items-center gap-4 border-y border-line py-3" style={{ animationDelay: '180ms' }}>
+            <span className="font-mono text-[9px] uppercase tracking-tech text-faint">Reference</span>
+            <span className="font-mono text-[14px] font-semibold tracking-[0.08em] text-accentdeep">{submitted.ref}</span>
           </div>
           {submitted.duplicate && (
-            <p className="mx-auto mt-3 max-w-[420px] text-[13px] text-faint">We already had this exact brief from you — no duplicate created, same reference applies.</p>
+            <p className="mt-3 max-w-[500px] text-[13px] text-faint">We already had this exact brief from you — no duplicate created, same reference applies.</p>
           )}
-          <div className="mt-10 grid gap-3 text-left sm:grid-cols-3">
+          <div className="mt-9 grid gap-5 border-t border-line pt-5 text-left sm:grid-cols-3 sm:gap-0">
             {[
               { n: '01', t: 'We review', d: 'Your brief reaches the team today.' },
               { n: '02', t: 'We reply', d: 'Within one business day, with questions.' },
               { n: '03', t: 'We scope', d: 'A short call turns this into a plan.' },
             ].map((s, si) => (
-              <div key={s.n} className="animate-fadeswap rounded-xl border border-line bg-paper p-4" style={{ animationDelay: `${380 + si * 90}ms` }}>
+              <div key={s.n} className={`animate-fadeswap ${si ? 'sm:border-l sm:border-line sm:pl-5' : ''} ${si < 2 ? 'sm:pr-5' : ''}`} style={{ animationDelay: `${280 + si * 90}ms` }}>
                 <span className="font-mono text-[10px] text-accent">{s.n}</span>
                 <p className="mt-1 text-[13.5px] font-semibold text-ink">{s.t}</p>
                 <p className="mt-0.5 text-[12px] leading-relaxed text-faint">{s.d}</p>
               </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link href="/" className="inline-flex items-center justify-center rounded-full border border-line px-7 py-3 text-[14px] font-medium text-ink transition-colors hover:border-ink/40">
               Back to home
             </Link>

@@ -618,7 +618,7 @@ test('R12 anti-vibe pass: native scroll, calm footer, specific eyebrows', async 
   const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
   assert.ok(css.includes('scroll-behavior: smooth'), 'anchors glide via CSS, reduced-motion respected');
   assert.ok(css.includes('scroll-margin-top: 96px'), 'anchor targets clear the fixed header');
-  assert.ok(css.includes('kiln-draw'), 'completion check draws once');
+  assert.ok(!css.includes('kiln-draw') && !css.includes('done-check'), 'no generic animated checkmark');
 
   const home = await getHtml('/');
   const footer = home.slice(home.indexOf('<footer'));
@@ -632,4 +632,23 @@ test('R12 anti-vibe pass: native scroll, calm footer, specific eyebrows', async 
 
   const approach = await getHtml('/approach');
   assert.ok(approach.includes('kiln-spine') && approach.includes('kiln-spine-fill'), 'process spine wired');
+});
+
+
+test('R13 craft pass: menu responds, concept art is honest, completion stays editorial', async () => {
+  const header = await readFile(new URL('../components/layout/Header.tsx', import.meta.url), 'utf8');
+  assert.ok(header.includes('onMouseEnter={() => setServiceHover(item.href)}'), 'service preview responds to pointer');
+  assert.ok(header.includes('onFocus={() => setServiceHover(item.href)}'), 'service preview also responds to keyboard focus');
+  assert.ok(header.includes('activeService.note'), 'service description follows selected item');
+
+  const visual = await readFile(new URL('../components/work/CaseVisual.tsx', import.meta.url), 'utf8');
+  assert.ok(visual.includes('Illustrative interface · not live data'), 'case-study concept art is clearly labeled');
+  for (const fabricated of ['Operations · Live', '98.2%', '31%', 'Resolved · no human needed', 'DX-2041']) {
+    assert.ok(!visual.includes(fabricated), `concept art has no fake telemetry: ${fabricated}`);
+  }
+
+  const wizard = await readFile(new URL('../components/start/ProjectWizard.tsx', import.meta.url), 'utf8');
+  const success = wizard.slice(wizard.indexOf('if (submitted)'), wizard.indexOf('/* ---------------- wizard'));
+  assert.ok(success.includes('Brief received') && success.includes('sm:border-l sm:border-line'), 'confirmation uses an editorial sequence, not a generic success card');
+  assert.ok(!success.includes('rounded-3xl') && !success.includes('done-check'), 'no oversized card or green check');
 });

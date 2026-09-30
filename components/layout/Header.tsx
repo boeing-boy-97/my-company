@@ -30,6 +30,8 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [navHover, setNavHover] = useState<string | null>(null);
+  const [serviceHover, setServiceHover] = useState<string | null>(null);
+  const activeService = servicesMenu.find((item) => item.href === serviceHover) ?? servicesMenu[0];
   const navRef = useRef<HTMLElement>(null);
   const navLineRef = useRef<HTMLSpanElement>(null);
 
@@ -118,10 +120,17 @@ export default function Header() {
                   <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-20px_rgba(23,25,30,0.28)]">
                     <div className="grid grid-cols-[210px_minmax(0,1fr)]">
                       {/* left: positioning pane */}
-                      <div className="flex flex-col justify-between border-r border-line bg-paper p-5">
-                        <div>
-                          <p className="label-tech">How we can help</p>
-                          <p className="mt-3 text-[13px] leading-relaxed text-soft">Six practices, one team. Pick the closest — we’ll map it to the problem on your call.</p>
+                      <div className="flex flex-col justify-between border-r border-line bg-paper p-5" aria-live="polite">
+                        <div key={activeService.href} className="service-preview-copy">
+                          <p className="font-mono text-[9px] uppercase tracking-tech text-accentdeep">Practice / {activeService.num}</p>
+                          <p className="mt-8 font-display text-[19px] font-semibold leading-tight tracking-[-0.035em] text-ink">{activeService.label}</p>
+                          <p className="mt-2 text-[12.5px] leading-relaxed text-soft">{activeService.note}</p>
+                          <div className="mt-6 flex items-center gap-2" aria-hidden>
+                            <span className="h-px w-7 bg-accent" />
+                            <span className="h-px w-4 bg-line" />
+                            <span className="h-px w-2 bg-line" />
+                            <span className="ml-1 font-mono text-[8px] uppercase tracking-tech text-faint">Selected practice</span>
+                          </div>
                         </div>
                         <Link href="/services" className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-medium text-accent transition-colors hover:text-accentdeep">
                           Compare all six
@@ -131,12 +140,19 @@ export default function Header() {
                       {/* right: numbered services */}
                       <div className="p-2">
                         {servicesMenu.map((item) => (
-                          <Link key={item.href} href={item.href} data-cursor="link" className="mega-item group/item flex items-center gap-3.5 rounded-xl px-3.5 py-[9px] transition-colors hover:bg-paper">
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            data-cursor="link"
+                            onMouseEnter={() => setServiceHover(item.href)}
+                            onFocus={() => setServiceHover(item.href)}
+                            className={`mega-item group/item flex items-center gap-3.5 rounded-xl px-3.5 py-[9px] transition-colors hover:bg-paper ${activeService.href === item.href ? 'bg-paper' : ''}`}
+                          >
                             <span className="w-5 shrink-0 font-mono text-[10px] text-faint transition-colors group-hover/item:text-accentdeep">{(item as { num?: string }).num}</span>
                             <span className="flex h-4 w-4 shrink-0 items-end gap-[2px]" aria-hidden>
-                              <span className="w-[3px] rounded-sm bg-accent" style={{ height: '10px' }} />
-                              <span className="w-[3px] rounded-sm bg-line" style={{ height: '6px', marginLeft: '1.5px' }} />
-                              <span className="w-[3px] rounded-sm bg-line" style={{ height: '3px', marginLeft: '1.5px' }} />
+                              <span className={`w-[3px] rounded-sm transition-[height,background-color] duration-300 ${activeService.href === item.href ? 'h-[10px] bg-accent' : 'h-[4px] bg-line'}`} />
+                              <span className={`w-[3px] rounded-sm transition-[height,background-color] duration-300 ${activeService.href === item.href ? 'h-[6px] bg-accent/55' : 'h-[4px] bg-line'}`} />
+                              <span className={`w-[3px] rounded-sm transition-[height,background-color] duration-300 ${activeService.href === item.href ? 'h-[3px] bg-accent/30' : 'h-[4px] bg-line'}`} />
                             </span>
                             <span className="min-w-0">
                               <span className="block text-[13.5px] font-medium text-ink">{item.label}</span>
