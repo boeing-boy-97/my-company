@@ -13,7 +13,6 @@ import { buildSearchIndex } from '@/lib/search-index';
 import GlobalSearch from '@/components/layout/GlobalSearch';
 import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import MotionCursor from '@/components/motion/Cursor';
-import SmoothScroll from '@/components/motion/SmoothScroll';
 import RouteCue from '@/components/motion/RouteCue';
 import CursorTrail from '@/components/motion/CursorTrail';
 import ScrollProgress from '@/components/motion/ScrollProgress';
@@ -52,7 +51,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd()) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd()) }} />
         <AnnouncementBar />
-        <SmoothScroll />
         <MotionCursor />
         <CursorTrail />
         <ScrollProgress />

@@ -4,6 +4,7 @@ import Reveal from '@/components/ui/Reveal';
 import CTASection from '@/components/ui/CTASection';
 import ProcessNav from '@/components/process/ProcessNav';
 import { PROCESS_STAGES as STAGES } from '@/content/process-stages';
+import ProcessSpine from '@/components/process/ProcessSpine';
 import { pageSeo } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default function ProcessPage() {
       <section className="border-t border-line">
         <div className="mx-auto grid max-w-shell gap-16 px-6 py-20 md:grid-cols-[190px_minmax(0,1fr)] md:gap-14 md:py-28 lg:gap-20">
           <ProcessNav stages={STAGES.map(({ num, name }) => ({ num, name }))} />
+          <ProcessSpine>
           <ol className="space-y-16 md:space-y-24">
             {STAGES.map((stage, i) => (
               <Reveal key={stage.num} as="li">
@@ -75,6 +77,7 @@ export default function ProcessPage() {
               </Reveal>
             ))}
           </ol>
+          </ProcessSpine>
         </div>
       </section>
 

@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Logo from './Logo';
-import HoverSwap from '@/components/motion/HoverSwap';
 import { site, isConfigured, publicSocials } from '@/lib/site';
 import { getSiteContact } from '@/lib/siteSettings';
 
@@ -70,7 +69,7 @@ export default async function Footer() {
                 {col.links.map((l) => (
                   <li key={l.label}>
                     <Link href={l.href} className="link-underline text-[13.5px] text-soft transition-colors hover:text-ink">
-                      <HoverSwap label={l.label} />
+                      {l.label}
                     </Link>
                   </li>
                 ))}

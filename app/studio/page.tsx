@@ -46,7 +46,7 @@ export default function AboutPage() {
       <section className="border-t border-line bg-surface">
         <div className="mx-auto grid max-w-shell gap-12 px-6 py-20 md:py-28 lg:grid-cols-[1fr_1fr] lg:gap-20">
           <div>
-            <SectionHeader label="Who we are" title="Compact by design." />
+            <SectionHeader label="Position" title="Compact by design." />
           </div>
           <div className="space-y-5">
             <Reveal>
@@ -71,7 +71,7 @@ export default function AboutPage() {
       {/* beliefs */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-shell px-6 py-20 md:py-28">
-          <SectionHeader label="What we believe" title="Five positions we don’t move from." />
+          <SectionHeader label="Non-negotiables" title="Five positions we don’t move from." />
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
             {BELIEFS.map((b, i) => (
               <Reveal key={b.t} delay={(i % 3) * 80}>
@@ -89,7 +89,7 @@ export default function AboutPage() {
       {/* how we work */}
       <section className="border-t border-line bg-surface">
         <div className="mx-auto grid max-w-shell gap-12 px-6 py-20 md:py-28 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
-          <SectionHeader label="How we work" title="The operating habits." />
+          <SectionHeader label="Day to day" title="The operating habits." />
           <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2">
             {HOW_WE_WORK.map((h, i) => (
               <Reveal key={h.t} delay={i * 70}>
@@ -106,7 +106,7 @@ export default function AboutPage() {
       {/* capabilities */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-shell px-6 py-20 md:py-28">
-          <SectionHeader label="Our capabilities" title="One studio, six practices." lede="Every practice below is something we deliver end to end — strategy included, maintenance included." />
+          <SectionHeader label="Delivery" title="One studio, six practices." lede="Every practice below is something we deliver end to end — strategy included, maintenance included." />
           <div className="mt-10 flex flex-wrap gap-2.5">
             {services.map((s) => (
               <span key={s.slug} className="inline-flex items-center gap-2.5 rounded-full border border-line bg-surface px-5 py-3 text-[14px] font-medium text-ink">
@@ -131,7 +131,7 @@ export default function AboutPage() {
       {/* team */}
       <section className="border-t border-line bg-surface">
         <div className="mx-auto max-w-shell px-6 py-20 md:py-28">
-          <SectionHeader label="Our team" title="The people behind the systems." />
+          <SectionHeader label="People" title="The people behind the systems." />
           <div className="mt-10">
             {realTeamMembers.length > 0 ? (
               <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">

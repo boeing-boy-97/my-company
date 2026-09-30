@@ -272,7 +272,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
       <div ref={topRef} className="mx-auto max-w-[680px] scroll-mt-32 animate-fadeswap">
         <div className="rounded-3xl border border-line bg-surface p-8 text-center md:p-14">
           <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-ok/10">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden className="text-ok">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden className="done-check text-ok">
               <path d="M4 12.5 9.5 18 20 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
@@ -280,7 +280,7 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
           <p className="mx-auto mt-3 max-w-[440px] text-[15.5px] leading-relaxed text-soft">
             We’ll reply within one business day with next steps and a few clarifying questions. A confirmation email is on its way to <span className="font-medium text-ink">{email}</span>.
           </p>
-          <div className="mx-auto mt-8 inline-flex items-center gap-3 rounded-full border border-line bg-paper px-6 py-3">
+          <div className="animate-fadeswap mx-auto mt-8 inline-flex items-center gap-3 rounded-full border border-line bg-paper px-6 py-3" style={{ animationDelay: '260ms' }}>
             <span className="font-mono text-[10.5px] uppercase tracking-tech text-faint">Reference</span>
             <span className="font-mono text-[15px] font-semibold text-accentdeep">{submitted.ref}</span>
           </div>
@@ -292,8 +292,8 @@ export default function ProjectWizard({ initialIdea, initialType }: WizardProps)
               { n: '01', t: 'We review', d: 'Your brief reaches the team today.' },
               { n: '02', t: 'We reply', d: 'Within one business day, with questions.' },
               { n: '03', t: 'We scope', d: 'A short call turns this into a plan.' },
-            ].map((s) => (
-              <div key={s.n} className="rounded-xl border border-line bg-paper p-4">
+            ].map((s, si) => (
+              <div key={s.n} className="animate-fadeswap rounded-xl border border-line bg-paper p-4" style={{ animationDelay: `${380 + si * 90}ms` }}>
                 <span className="font-mono text-[10px] text-accent">{s.n}</span>
                 <p className="mt-1 text-[13.5px] font-semibold text-ink">{s.t}</p>
                 <p className="mt-0.5 text-[12px] leading-relaxed text-faint">{s.d}</p>

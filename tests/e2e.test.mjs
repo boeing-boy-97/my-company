@@ -551,7 +551,7 @@ test('SEO metadata on all main routes: title+description+canonical+og (§34)', a
 
 test('motion layer wiring: hover swaps, view cursors, drag slider', async () => {
   const home = await (await fetch(BASE + '/')).text();
-  assert.ok((home.match(/kiln-swap-b/g) ?? []).length >= 12, 'footer+nav hover-swap links rendered');
+  assert.ok((home.match(/kiln-swap-b/g) ?? []).length >= 6, 'nav hover-swap links rendered');
   const work = await (await fetch(BASE + '/work')).text();
   assert.ok(work.includes('data-cursor="view"'), 'work cards opt into the VIEW cursor');
   assert.ok(home.includes('data-cursor="drag"'), 'transformation slider declares the drag cursor');
@@ -609,4 +609,27 @@ test('R11 refinement: navline wiring + no orphaned observer classes', async () =
   assert.ok(!css.includes('.is-visible'), 'no orphaned is-visible selectors');
   assert.ok(css.includes('--z-cursor'), 'z ladder tokenized');
   assert.ok(css.includes('--ease-standard'), 'easing vocabulary tokenized');
+});
+
+test('R12 anti-vibe pass: native scroll, calm footer, specific eyebrows', async () => {
+  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.ok(!(pkg.dependencies?.lenis || pkg.devDependencies?.lenis), 'lenis removed — native scroll per §36');
+
+  const css = await readFile(new URL('../app/globals.css', import.meta.url), 'utf8');
+  assert.ok(css.includes('scroll-behavior: smooth'), 'anchors glide via CSS, reduced-motion respected');
+  assert.ok(css.includes('scroll-margin-top: 96px'), 'anchor targets clear the fixed header');
+  assert.ok(css.includes('kiln-draw'), 'completion check draws once');
+
+  const home = await getHtml('/');
+  const footer = home.slice(home.indexOf('<footer'));
+  assert.ok(!footer.includes('kiln-swap'), 'footer stays calm — no swap theatrics');
+  assert.ok(!home.includes('>What we do<'), 'generic eyebrow retired on home');
+  assert.ok(!home.includes('>Why clients work with us<'), 'generic eyebrow retired (why section)');
+
+  const studio = await getHtml('/studio');
+  assert.ok(!studio.includes('>Who we are<'), 'generic eyebrow retired on studio');
+  assert.ok(studio.includes('>Non-negotiables<'), 'specific replacement present');
+
+  const approach = await getHtml('/approach');
+  assert.ok(approach.includes('kiln-spine') && approach.includes('kiln-spine-fill'), 'process spine wired');
 });

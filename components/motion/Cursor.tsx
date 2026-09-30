@@ -16,7 +16,7 @@ import { subscribePointer, subscribeHover, subscribePress, motionEngine, type Po
  *  - press dims + shrinks the ring slightly; leaving the window hides both.
  * Fine pointers only; reduced motion keeps the native cursor entirely.
  */
-const SCALE: Record<string, number> = { '': 1, hover: 1.18, start: 1.3, drag: 1.22, open: 1.55, explore: 1.55, view: 1.62 };
+const SCALE: Record<string, number> = { '': 1, hover: 1.18, link: 1.15, button: 1.25, start: 1.3, drag: 1.22, open: 1.55, explore: 1.55, view: 1.62 };
 const LABELED: Record<string, string> = { view: 'View', open: 'Open', explore: 'Explore', start: 'Start' };
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
@@ -118,7 +118,7 @@ export default function Cursor() {
       inField = false;
       const explicit = t.getAttribute('data-cursor');
       if (explicit === 'hidden' || explicit === 'none') return applyMode('');
-      applyMode(explicit || 'hover');
+      applyMode(explicit || (tag === 'BUTTON' ? 'button' : 'link'));
     });
 
     const unsubPress = subscribePress((down) => {

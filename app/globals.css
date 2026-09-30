@@ -522,3 +522,51 @@ html.kiln-cursor ::selection { cursor: auto; }
     transition: opacity 0.12s var(--ease-micro);
   }
 }
+
+/* ── Anti-vibe pass (R12): native scroll, drawn check, process spine ── */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+[id] {
+  scroll-margin-top: 96px;
+}
+.done-check path {
+  stroke-dasharray: 34;
+  stroke-dashoffset: 34;
+  animation: kiln-draw 0.5s 0.12s var(--ease-standard) forwards;
+}
+@keyframes kiln-draw {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .done-check path { animation: none; stroke-dashoffset: 0; }
+}
+.kiln-ring[data-mode="link"],
+.kiln-ring[data-mode="button"] {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.kiln-spine {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 23px;
+  width: 2px;
+  border-radius: 9999px;
+  background: var(--line, #e5e1da);
+  overflow: hidden;
+  pointer-events: none;
+}
+.kiln-spine-fill {
+  position: absolute;
+  inset: 0;
+  background: #e4572e;
+  transform-origin: top;
+  transform: scaleY(var(--spine, 0));
+  transition: transform 0.18s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .kiln-spine { display: none; }
+}

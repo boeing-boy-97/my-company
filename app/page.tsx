@@ -151,7 +151,7 @@ export default async function HomePage() {
       <section className="border-t border-line" aria-labelledby="services-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
           <div className="flex flex-wrap items-end justify-between gap-8">
-            <SectionHeader index="04" label="What we do" title={<span id="services-title">One capability map. Pick where you are.</span>} />
+            <SectionHeader index="04" label="Where to start" title={<span id="services-title">One capability map. Pick where you are.</span>} />
             <Reveal delay={200}>
               <ArrowLink href="/services">All services</ArrowLink>
             </Reveal>
@@ -260,7 +260,7 @@ export default async function HomePage() {
           <div className="lg:sticky lg:top-32 lg:self-start">
             <SectionHeader
               index="06"
-              label="Process"
+              label="The sequence"
               title={<span id="process-title">From problem to production.</span>}
               lede="A single accountable process, whether the deliverable is an automation, an agent or a full product. No phase is skipped, and every phase produces something you can see."
             />
@@ -272,7 +272,7 @@ export default async function HomePage() {
       {/* ============================== WHY US ============================== */}
       <section className="border-t border-line" aria-labelledby="why-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-32">
-          <SectionHeader index="07" label="Why clients work with us" title={<span id="why-title">Positions, not promises.</span>} />
+          <SectionHeader index="07" label="Commitments" title={<span id="why-title">Positions, not promises.</span>} />
           <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-2">
             {[
               { t: 'Business-first engineering', d: 'We solve the underlying problem, not just the requested feature. Sometimes the right build is smaller than the one you asked for — we’ll tell you.' },
@@ -280,7 +280,7 @@ export default async function HomePage() {
               { t: 'Built for production', d: 'Security, reliability, scalability and maintainability are considered from day one — not bolted on after launch.' },
               { t: 'Transparent communication', d: 'Clear scope, milestones and deliverables. You always know what is being built, why, and what it costs.' },
               { t: 'Flexible engagement', d: 'One project, a long-term engineering partnership, or ongoing automation support. The relationship fits the work — not the other way around.' },
-              { t: 'Measured in outcomes', d: 'Hours returned, response times cut, revenue unlocked. If we can’t define how success will be measured, we define it before building.' },
+              { t: 'Measured in outcomes', d: 'Hours back in the week, answers in minutes, quotes that stop leaking. If we can’t define how success will be measured, we define it before building.' },
             ].map((item, i) => (
               <Reveal key={item.t} delay={(i % 2) * 90}>
                 <div className="h-full bg-surface p-8 transition-colors duration-300 hover:bg-paper md:p-10">
@@ -329,7 +329,7 @@ export default async function HomePage() {
       {/* ============================== TESTIMONIALS ============================== */}
       <section className="border-t border-line" aria-labelledby="voices-title">
         <div className="mx-auto max-w-shell px-6 py-24 md:py-28">
-          <SectionHeader index="09" label="Client voices" title={<span id="voices-title">In their words.</span>} />
+          <SectionHeader index="09" label="References" title={<span id="voices-title">In their words.</span>} />
           <div className="mt-12">
             {publishedTestimonials.length > 0 ? (
               <div className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line md:grid-cols-3">
